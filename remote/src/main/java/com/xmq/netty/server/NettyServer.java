@@ -1,5 +1,4 @@
 package com.xmq.netty.server;
-
 import com.xmq.netty.MsgpackDecoder;
 import com.xmq.netty.MsgpackEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -13,8 +12,9 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import javax.annotation.Resource;
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.netty
@@ -25,21 +25,23 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class NettyServer {
-    /**
-     * 日志
-     */
+
     private Logger log = LoggerFactory.getLogger(NettyServer.class);
 
-
-    private int port  = 10000;
-
+    /**
+     * 端口号
+     */
+    @Value("${netty.port}")
+    private int port;
+    @Value("${zookeeper.ip}")
+    private String zk;
     /**
      * 启动服务器方法
-     *
      * @param
      */
     public void start() {
-        System.out.println("netty服务启动: [port:" + port + "]");
+        System.out.println("port:====================="+zk);
+        log.info("netty服务启动: [port: {}]",port);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -49,8 +51,6 @@ public class NettyServer {
             serverBootstrap.handler(new LoggingHandler(LogLevel.INFO));
             serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
             serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-
-
             serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
@@ -58,13 +58,12 @@ public class NettyServer {
                     ch.pipeline().addLast("msgpack decoder",new MsgpackDecoder());
                     ch.pipeline().addLast("frameEncoder",new LengthFieldPrepender(2));
                     ch.pipeline().addLast("msgpack encoder",new MsgpackEncoder());
-
                     ch.pipeline().addLast( new ServerChannelHandlerAdapter());
                 }
             });
+
             // 绑定端口,开始接收进来的连接
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
-            log.info("netty服务启动: [port:" + port + "]");
             // 等待服务器socket关闭
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {

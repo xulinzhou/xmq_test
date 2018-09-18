@@ -19,8 +19,6 @@ public class MsgpackDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("msg=======================2222222222222222222222222");
         final int length = msg.readableBytes();
         byte[] b = new byte[length];
         msg.getBytes(msg.readerIndex(), b,0,length);

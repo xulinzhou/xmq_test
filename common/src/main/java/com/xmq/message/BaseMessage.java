@@ -20,5 +20,13 @@ public class BaseMessage implements Serializable {
     private String groupName;
     private Object msg;
     private Long expireTime;
+    public BaseMessage(String messageId, String subject,String groupName) {
+        super();
+        this.messageId = messageId;
+        this.subject = subject;
+        this.groupName = groupName;
+    }
+    public BaseMessage(){
 
+    }
 }
