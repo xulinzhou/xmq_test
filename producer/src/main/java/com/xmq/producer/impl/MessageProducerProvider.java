@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.producer.impl
@@ -19,9 +21,9 @@ import org.springframework.stereotype.Component;
 public class MessageProducerProvider implements MessageProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducerProvider.class);
-
+    @Resource
+    private NettyClient client;
    public  void sendMessage(BaseMessage message){
-       NettyClient client = new NettyClient();
-       //client.sendMesage();
+       client.sendMessage(message);
     }
 }

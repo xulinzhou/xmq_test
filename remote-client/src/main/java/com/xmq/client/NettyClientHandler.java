@@ -39,9 +39,9 @@ public class NettyClientHandler  extends ChannelHandlerAdapter {
         Class cls = com.xmq.message.BrokerMessageService.class;
         data.setInterfaceClass(cls);
         data.setMethodName("sendMe");*/
-        UserInfo user = new UserInfo("1","22");
+        //UserInfo user = new UserInfo("1","22");
         System.out.println("222222222-==========================");
-        ctx.write(user);
+        ctx.write(null);
         ctx.flush();
     }
 }

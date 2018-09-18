@@ -1,6 +1,7 @@
 package com.xmq;
 
 import com.xmq.message.BaseMessage;
+import com.xmq.producer.MessageProducer;
 import com.xmq.producer.client.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +28,14 @@ public class ClientApplication implements CommandLineRunner {
         SpringApplication.run(ClientApplication.class, args);
     }
     @Resource
-    private NettyClient nettyClient;
+    private MessageProducer messageProducer;
     @Override
     public void run(String... args) throws Exception {
 
 
         BaseMessage message =new BaseMessage("11","1111","222");
 
-        nettyClient.sendMessage(message);
+        messageProducer.sendMessage(message);
 
     }
 }
