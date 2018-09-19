@@ -7,6 +7,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.RetryOneTime;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 
 import java.util.List;
 
@@ -39,12 +40,19 @@ public class ZKClient {
         cache.start(buildCache);
         return cache;
     }
-
     public String addEphemeralNode(String parentNode, String node) throws Exception {
         return addEphemeralNode(ZKPaths.makePath(parentNode, node));
     }
-
     public String addEphemeralNode(String path) throws Exception {
         return client.create().withMode(CreateMode.EPHEMERAL).forPath(path);
     }
+    public void addPersistentNode(String node) throws Exception {
+        try {
+            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(node);
+        } catch (KeeperException.NodeExistsException e) {
+        } catch (Exception e) {
+            throw new Exception("addPersistentNode error", e);
+        }
+    }
+
 }

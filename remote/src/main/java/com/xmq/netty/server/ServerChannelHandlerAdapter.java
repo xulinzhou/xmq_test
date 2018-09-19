@@ -2,13 +2,20 @@ package com.xmq.netty.server;
 
 import com.xmq.message.BaseMessage;
 import com.xmq.message.UserInfo;
+import com.xmq.resolver.ZKClient;
+import com.xmq.resolver.ZkResolver;
+import com.xmq.util.Constants;
+import com.xmq.util.IpUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import org.msgpack.MessagePack;
+import org.msgpack.type.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -37,11 +44,24 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
         ctx.flush();
     }
 
+
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws  Exception {
+        ZKClient client =    new ZKClient( IpUtil.getServerIp()+":2181");
+        System.out.println(msg.toString());
+
+        List<Value> msg_new = (List<Value>)msg;
+        UserInfo t = MessagePack.unpack(MessagePack.pack(msg_new), UserInfo.class);
+
+        System.out.println(t.getUsername()+"========"+t.getAge());
         LOGGER.info("SimpleServerHandler.channelRead");
-        List<UserInfo> data = (List<UserInfo>) msg;
-        LOGGER.info("data"+data.toString());
+        /*List<UserInfo> msgs = (List<UserInfo>) msg;
+        for(UserInfo baseMes : msgs){
+
+            //client.addEphemeralNode(Constants.BROKER_ROOT+baseMes.getSubject()+"/"+baseMes.getGroupName()+ IpUtil.getServerIp());
+        }*/
+
+        LOGGER.info("msgs"+msg.toString());
     }
 
 }

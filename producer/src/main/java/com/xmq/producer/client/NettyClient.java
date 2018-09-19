@@ -37,7 +37,6 @@ public class NettyClient {
     private BaseMessage message;
     /**
      * 构造函数
-     *
      */
     public NettyClient() {
         this.host = "127.0.0.1";

@@ -1,6 +1,7 @@
 package com.xmq.message;
 
 import lombok.Data;
+import org.msgpack.annotation.Message;
 
 import java.io.Serializable;
 
@@ -13,20 +14,47 @@ import java.io.Serializable;
  * @Version: 1.0
  */
 @Data
-public class BaseMessage implements Serializable {
+@Message
+public class BaseMessage  {
     private String messageId;
     private String subject;
     private static final long expiredDelay = 10 * 3600;
     private String groupName;
-    private Object msg;
-    private Long expireTime;
+
     public BaseMessage(String messageId, String subject,String groupName) {
-        super();
         this.messageId = messageId;
         this.subject = subject;
         this.groupName = groupName;
     }
     public BaseMessage(){
 
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public static long getExpiredDelay() {
+        return expiredDelay;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 }

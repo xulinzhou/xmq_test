@@ -33,14 +33,13 @@ public class NettyServer {
      */
     @Value("${netty.port}")
     private int port;
-    @Value("${zookeeper.ip}")
-    private String zk;
+
     /**
      * 启动服务器方法
      * @param
      */
     public void start() {
-        System.out.println("port:====================="+zk);
+        System.out.println("port:====================="+port);
         log.info("netty服务启动: [port: {}]",port);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
