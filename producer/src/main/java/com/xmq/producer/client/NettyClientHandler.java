@@ -47,17 +47,8 @@ public class NettyClientHandler  extends ChannelHandlerAdapter {
     // 连接成功后，向server发送消息
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
-        //ZKClient client =    new ZKClient(IpUtil.getServerIp()+":2181");
-        /*client.addPersistentNode(Constants.MQ_ZK_ROOT);
-        client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject());
-        client.addEphemeralNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName());*/
-        //BaseMessage user = new BaseMessage("111","333","222");
-       // List<BaseMessage> msgs = new ArrayList<>();
-        UserInfo user = new UserInfo("1111","33333");
-       // msgs.add(user);
-        LOGGER.info("====>send message "+JSON.toJSONString(user));
-        ctx.write(user);
+        LOGGER.info("====>send message "+JSON.toJSONString(message));
+        ctx.write(message);
         ctx.flush();
     }
 }

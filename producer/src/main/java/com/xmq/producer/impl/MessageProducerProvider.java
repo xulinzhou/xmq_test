@@ -23,6 +23,7 @@ public class MessageProducerProvider implements MessageProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducerProvider.class);
     @Resource
     private NettyClient client;
+
    public  void sendMessage(BaseMessage message){
        client.sendMessage(message);
     }

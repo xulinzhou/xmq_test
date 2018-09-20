@@ -1,11 +1,10 @@
 package com.xmq;
 
+import com.xmq.consumer.MessageConsumer;
+import com.xmq.consumer.MessageListener;
 import com.xmq.message.BaseMessage;
-import com.xmq.producer.MessageProducer;
-import com.xmq.producer.client.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,10 +27,13 @@ public class ClientApplication implements CommandLineRunner {
         SpringApplication.run(ClientApplication.class, args);
     }
     @Resource
-    private MessageProducer messageProducer;
+    private MessageConsumer messageConsumer;
     @Override
     public void run(String... args) throws Exception {
-        BaseMessage message =new BaseMessage("11","test","group1");
-        messageProducer.sendMessage(message);
+         messageConsumer.addListener("test", "group1", new MessageListener() {
+            public void onMessage(BaseMessage msg) {
+                System.out.println("normal messageId is " + msg.getMessageId());
+            }
+        });
     }
 }

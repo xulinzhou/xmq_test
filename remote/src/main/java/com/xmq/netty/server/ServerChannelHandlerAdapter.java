@@ -44,23 +44,27 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
         ctx.flush();
     }
 
+    /**
+     * 客户端连接到服务端后进行
+     */
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+        LOGGER.info("客户端连接");
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws  Exception {
-        ZKClient client =    new ZKClient( IpUtil.getServerIp()+":2181");
-        System.out.println(msg.toString());
+
+        LOGGER.info(msg.toString());
 
         List<Value> msg_new = (List<Value>)msg;
-        UserInfo t = MessagePack.unpack(MessagePack.pack(msg_new), UserInfo.class);
+        BaseMessage baseMessage = MessagePack.unpack(MessagePack.pack(msg_new), BaseMessage.class);
 
-        System.out.println(t.getUsername()+"========"+t.getAge());
+        if(null!=baseMessage){
+
+        }
         LOGGER.info("SimpleServerHandler.channelRead");
-        /*List<UserInfo> msgs = (List<UserInfo>) msg;
-        for(UserInfo baseMes : msgs){
-
-            //client.addEphemeralNode(Constants.BROKER_ROOT+baseMes.getSubject()+"/"+baseMes.getGroupName()+ IpUtil.getServerIp());
-        }*/
-
         LOGGER.info("msgs"+msg.toString());
     }
 

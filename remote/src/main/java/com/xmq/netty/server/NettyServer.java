@@ -1,6 +1,9 @@
 package com.xmq.netty.server;
 import com.xmq.netty.MsgpackDecoder;
 import com.xmq.netty.MsgpackEncoder;
+import com.xmq.resolver.ZKClient;
+import com.xmq.util.Constants;
+import com.xmq.util.IpUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -34,12 +37,13 @@ public class NettyServer {
     @Value("${netty.port}")
     private int port;
 
+    @Value("${broker.path}")
+    private String path;
     /**
      * 启动服务器方法
      * @param
      */
     public void start() {
-        System.out.println("port:====================="+port);
         log.info("netty服务启动: [port: {}]",port);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -60,7 +64,8 @@ public class NettyServer {
                     ch.pipeline().addLast( new ServerChannelHandlerAdapter());
                 }
             });
-
+            ZKClient client = new ZKClient( IpUtil.getServerIp()+":2181");
+            client.addEphemeralNode(path+IpUtil.getServerIp());
             // 绑定端口,开始接收进来的连接
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
             // 等待服务器socket关闭
