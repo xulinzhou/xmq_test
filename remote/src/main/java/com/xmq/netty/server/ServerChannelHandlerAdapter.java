@@ -34,7 +34,6 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // 当出现异常就关闭连接
         cause.printStackTrace();
         ctx.close();
     }
@@ -49,7 +48,6 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
         LOGGER.info("客户端连接");
     }
 
