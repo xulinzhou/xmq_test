@@ -1,4 +1,5 @@
 package com.xmq.netty.server;
+import com.xmq.handler.QueueHandler;
 import com.xmq.netty.MsgpackDecoder;
 import com.xmq.netty.MsgpackEncoder;
 import com.xmq.resolver.ZKClient;
@@ -39,11 +40,14 @@ public class NettyServer {
 
     @Value("${broker.path}")
     private String path;
+
+    private QueueHandler queue;
     /**
      * 启动服务器方法
      * @param
      */
-    public void start() {
+    public void start(final QueueHandler queue) {
+        this.queue = queue;
         log.info("netty服务启动: [port: {}]",port);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -61,7 +65,7 @@ public class NettyServer {
                     ch.pipeline().addLast("msgpack decoder",new MsgpackDecoder());
                     ch.pipeline().addLast("frameEncoder",new LengthFieldPrepender(2));
                     ch.pipeline().addLast("msgpack encoder",new MsgpackEncoder());
-                    ch.pipeline().addLast( new ServerChannelHandlerAdapter());
+                    ch.pipeline().addLast( new ServerChannelHandlerAdapter(queue));
                 }
             });
             ZKClient client = new ZKClient( IpUtil.getServerIp()+":2181");

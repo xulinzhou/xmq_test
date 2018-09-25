@@ -1,9 +1,8 @@
 package com.xmq.util;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.net.*;
 import java.util.Enumeration;
 
 /**
@@ -25,5 +24,16 @@ public class IpUtil {
             e.printStackTrace();
         }
         return SERVER_IP;
+    }
+
+    public static String  getClientIp(ChannelHandlerContext ctx) throws  Exception{
+        String CLIENT_IP = null;
+        try {
+            InetSocketAddress insocket = (InetSocketAddress) ctx.channel().remoteAddress();
+             CLIENT_IP = insocket.getAddress().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return CLIENT_IP;
     }
 }

@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import javax.annotation.Resource;
 
@@ -21,6 +23,7 @@ import javax.annotation.Resource;
  * @Version: 1.0
  */
 @SpringBootApplication
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class ClientApplication implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientApplication.class);
 
@@ -31,6 +34,7 @@ public class ClientApplication implements CommandLineRunner {
     private MessageProducer messageProducer;
     @Override
     public void run(String... args) throws Exception {
+
         BaseMessage message =new BaseMessage("11","test","group1");
         messageProducer.sendMessage(message);
     }

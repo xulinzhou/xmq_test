@@ -1,10 +1,7 @@
 package com.xmq.netty.server;
 
+import com.xmq.handler.QueueHandler;
 import com.xmq.message.BaseMessage;
-import com.xmq.message.UserInfo;
-import com.xmq.resolver.ZKClient;
-import com.xmq.resolver.ZkResolver;
-import com.xmq.util.Constants;
 import com.xmq.util.IpUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -15,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -30,7 +26,12 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
 
+    private QueueHandler queue;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandlerAdapter.class);
+
+    public ServerChannelHandlerAdapter(QueueHandler queue) {
+        this.queue = queue;
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
@@ -48,19 +49,18 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
         LOGGER.info("客户端连接");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws  Exception {
-
-        LOGGER.info(msg.toString());
-
+        String clientIp = IpUtil.getClientIp(ctx);
         List<Value> msg_new = (List<Value>)msg;
         BaseMessage baseMessage = MessagePack.unpack(MessagePack.pack(msg_new), BaseMessage.class);
 
         if(null!=baseMessage){
-
+            queue.add(baseMessage);
         }
         LOGGER.info("SimpleServerHandler.channelRead");
         LOGGER.info("msgs"+msg.toString());

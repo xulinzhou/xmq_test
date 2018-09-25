@@ -47,8 +47,11 @@ public class NettyClientHandler  extends ChannelHandlerAdapter {
     // 连接成功后，向server发送消息
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("====>send message "+JSON.toJSONString(message));
-        ctx.write(message);
-        ctx.flush();
+        for(int i=0;i<100;i++){
+            LOGGER.info("====>send message "+JSON.toJSONString(message));
+            ctx.write(message);
+            ctx.flush();
+        }
+
     }
 }
