@@ -1,5 +1,6 @@
 package com.xmq.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.xmq.message.BaseMessage;
 import com.xmq.store.file.FileStore;
 
@@ -17,7 +18,7 @@ public class FileHandler extends AbstractHandler {
         String fileName  = message.getSubject();
         try{
             FileStore file  = new FileStore(message);
-            file.write(message.toString());
+            file.write(JSON.toJSONString(message));
         }catch (Exception e){
             e.printStackTrace();
         }
