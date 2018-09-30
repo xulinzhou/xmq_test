@@ -15,14 +15,15 @@ import javax.annotation.Resource;
  * @CreateDate: 2018/9/21 14:23
  * @Version: 1.0
  */
+@Component
 public class DbHandler extends AbstractHandler {
 
 
-
+    @Resource
+    private DbStore dbStore;
     @Override
     public void handleNext(BaseMessage message) {
-        DbStore store = new DbStore();
-        //store.save(message);
+        dbStore.save(message);
         this.nextHandler.handleNext(message);
     }
 }

@@ -7,6 +7,8 @@ import com.xmq.netty.server.NettyServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
+
 /**
  * @ProjectName: xmq
  * @Package: com.xmq
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class DispatchThread extends Thread {
     private Logger log = LoggerFactory.getLogger(DispatchThread.class);
 
+    @Resource
     private QueueHandler queueHandler;
 
     private volatile boolean isRunning = true;

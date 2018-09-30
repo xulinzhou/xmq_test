@@ -4,6 +4,7 @@ import com.xmq.message.BaseMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -19,7 +20,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class QueueHandler implements Handler {
 
     private BlockingQueue<BaseMessage> queue;
-    protected AbstractHandler nextHandler = null;
+    @Resource
+    protected AbstractHandler nextHandler ;
     public QueueHandler() {
         queue = new LinkedBlockingQueue<BaseMessage>(10000);
     }
