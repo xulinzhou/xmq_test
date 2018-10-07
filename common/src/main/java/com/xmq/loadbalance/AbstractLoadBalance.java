@@ -1,4 +1,4 @@
-package com.xmq.producer.loadbalance;
+package com.xmq.loadbalance;
 
 import java.util.List;
 import java.util.Random;

@@ -6,6 +6,7 @@ import com.xmq.handler.*;
 import com.xmq.netty.server.NettyServer;
 import com.xmq.store.db.IDbStore;
 import com.xmq.store.db.impl.DbStore;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,6 +27,7 @@ import javax.annotation.Resource;
  */
 @SpringBootApplication
 @AutoConfigureAfter(Handler.class)
+@Slf4j
 public class NettyApplication implements CommandLineRunner {
 
     @Resource
@@ -34,6 +36,7 @@ public class NettyApplication implements CommandLineRunner {
 
     @Resource
     Config config;
+
     public static void main(String[] args) {
         SpringApplication.run(NettyApplication.class, args);
     }
@@ -42,16 +45,22 @@ public class NettyApplication implements CommandLineRunner {
     public void run(String... args) {
         start();
     }
-    public void start(){
-        IDbStore store  =    new DbStore(null);
-        QueueHandler queue = new QueueHandler();
-        DbHandler dbHandler = new DbHandler();
-        FileHandler fileHandler = new FileHandler();
-        queue.setNextHandler(dbHandler);
-        dbHandler.setNextHandler(fileHandler);
-        //多线程处理队列数据
-        new DispatchThread(queue).start();
+    public void start() {
+        try {
+            IDbStore store  =    new DbStore(config);
+            QueueHandler queue = new QueueHandler();
+            DbHandler dbHandler = new DbHandler(store);
+            FileHandler fileHandler = new FileHandler(config);
+            queue.setNextHandler(dbHandler);
+            dbHandler.setNextHandler(fileHandler);
+            //多线程处理队列数据
+            new DispatchThread(queue).start();
+            nettyServer.start(queue);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
-        nettyServer.start(queue);
     }
+
+
 }

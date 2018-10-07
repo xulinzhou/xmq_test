@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.security.Timestamp;
+import java.util.Date;
 
 /**
  * @ProjectName: xmq
@@ -29,18 +31,26 @@ public class DbStore implements  IDbStore {
 
     private static final Logger log = LoggerFactory.getLogger(DbStore.class);
 
-   
-    private final static String SAVE_MESSAGE_SQL = "INSERT INTO messages(id,subject,sender_ip,group,content,status,created,modifyed,received_time) VALUES(?,?,?,?,?,?,?,?,?)";
+
+    private final static String SAVE_MESSAGE_SQL = "INSERT INTO messages(subject,content,status,created,modifyed,received_time) VALUES(?,?,?,?,?,?)";
     private JdbcTemplate jdbcTemplate;
-    public void DbStore(Config config) {
+    public   DbStore(Config config) {
         javax.sql.DataSource dataSource = DataBaseUtils.createDataSource(config.getDriver(), config.getUrl(), config.getUsername(),
                 config.getPassword());
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void save(BaseMessage message) {
-        String sql = String.format(SAVE_MESSAGE_SQL, message.getGroupName(),message.getMessageId());
-        jdbcTemplate.execute(sql);
+        jdbcTemplate.update(SAVE_MESSAGE_SQL,
+                new Object[] {
+                        message.getSubject(),
+                        message.getGroupName(),
+                        0,
+                        new Date(),
+                        new Date(),
+                        new Date()}
+        );
+
     }
 
 }

@@ -1,4 +1,4 @@
-package com.xmq.producer.loadbalance;
+package com.xmq.loadbalance;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ import java.util.List;
  * @Version: 1.0
  */
 public interface LoadBalance {
-    String select(List<String> paths );
+    String select(List<String> paths);
 }

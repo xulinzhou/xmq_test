@@ -23,5 +23,6 @@ public class Config {
     private String username;
     @Value("${spring.datasource.password}")
     private String password;
-
+    @Value("${file.path}")
+    private String filePath;
 }

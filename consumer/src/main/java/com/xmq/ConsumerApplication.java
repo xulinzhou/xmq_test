@@ -3,11 +3,15 @@ package com.xmq;
 import com.xmq.consumer.MessageConsumer;
 import com.xmq.consumer.MessageListener;
 import com.xmq.message.BaseMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import javax.annotation.Resource;
 
@@ -20,20 +24,27 @@ import javax.annotation.Resource;
  * @Version: 1.0
  */
 @SpringBootApplication
-public class ClientApplication implements CommandLineRunner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientApplication.class);
+@Slf4j
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+public class ConsumerApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
-        SpringApplication.run(ClientApplication.class, args);
+        SpringApplication.run(ConsumerApplication.class, args);
+
+
     }
     @Resource
     private MessageConsumer messageConsumer;
     @Override
     public void run(String... args) throws Exception {
-         messageConsumer.addListener("test", "group1", new MessageListener() {
+
+        messageConsumer.addListener("test", "group1", new MessageListener() {
             public void onMessage(BaseMessage msg) {
-                System.out.println("normal messageId is " + msg.getMessageId());
+                log.info("normal messageId is " + msg.getMessageId());
             }
         });
+
+        System.in.read();
+
     }
 }

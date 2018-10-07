@@ -1,8 +1,12 @@
 package com.xmq.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.xmq.config.Config;
 import com.xmq.message.BaseMessage;
 import com.xmq.store.file.FileStore;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * @ProjectName: xmq
@@ -12,16 +16,29 @@ import com.xmq.store.file.FileStore;
  * @CreateDate: 2018/9/21 14:23
  * @Version: 1.0
  */
+@Slf4j
 public class FileHandler extends AbstractHandler {
+    private Config config;
+    private FileStore file;
     @Override
     public void handleNext(BaseMessage message) {
-        String fileName  = message.getSubject();
         try{
-            FileStore file  = new FileStore(message);
-            file.write(JSON.toJSONString(message));
+            file.write(message);
         }catch (Exception e){
+            log.error("文件保存失败",e.getMessage());
             e.printStackTrace();
         }
     }
-
+    public void handleNext(List<BaseMessage> messages) {
+        try{
+            file.write(messages);
+        }catch (Exception e){
+            log.error("文件保存失败",e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    public FileHandler(Config config) throws Exception{
+        this.config = config;
+        file  = new FileStore(config);
+    }
 }

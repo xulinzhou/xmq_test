@@ -1,11 +1,12 @@
 package com.xmq.producer.client;
 
 import com.alibaba.fastjson.JSON;
+import com.xmq.loadbalance.LoadBalance;
+import com.xmq.loadbalance.RandomLoadBalance;
 import com.xmq.message.BaseMessage;
 import com.xmq.netty.MsgpackDecoder;
 import com.xmq.netty.MsgpackEncoder;
-import com.xmq.producer.loadbalance.LoadBalance;
-import com.xmq.producer.loadbalance.RandomLoadBalance;
+
 import com.xmq.resolver.ZKClient;
 import com.xmq.util.Constants;
 import com.xmq.util.IpUtil;

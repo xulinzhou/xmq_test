@@ -1,6 +1,7 @@
 package com.xmq.store.file;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -12,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @Version: 1.0
  */
 @Data
+@Slf4j
 public class FileLog {
     private String queueId;
     private String topic;

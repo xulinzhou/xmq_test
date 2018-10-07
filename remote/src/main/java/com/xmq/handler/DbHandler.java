@@ -19,8 +19,13 @@ import javax.annotation.Resource;
 public class DbHandler extends AbstractHandler {
 
 
-    @Resource
-    private DbStore dbStore;
+
+    private IDbStore dbStore;
+
+    public DbHandler(IDbStore dbStore) {
+        this.dbStore = dbStore;
+    }
+
     @Override
     public void handleNext(BaseMessage message) {
         dbStore.save(message);

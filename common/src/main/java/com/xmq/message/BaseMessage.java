@@ -1,6 +1,7 @@
 package com.xmq.message;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.msgpack.annotation.Message;
 
 import java.io.Serializable;
