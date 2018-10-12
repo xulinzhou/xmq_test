@@ -2,10 +2,8 @@ package com.xmq;
 
 import com.xmq.message.BaseMessage;
 import com.xmq.producer.MessageProducer;
-import com.xmq.producer.client.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,11 +22,11 @@ import javax.annotation.Resource;
  */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
-public class ClientApplication implements CommandLineRunner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientApplication.class);
+public class ProducerApplication implements CommandLineRunner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProducerApplication.class);
 
     public static void main(String[] args) {
-        SpringApplication.run(ClientApplication.class, args);
+        SpringApplication.run(ProducerApplication.class, args);
     }
     @Resource
     private MessageProducer messageProducer;

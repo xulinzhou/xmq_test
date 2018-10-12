@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * @ProjectName: xmq
  * @Package: com.xmq
- * @Description: java类作用描述
+ * @Description: 消息同步
  * @Author: xulinzhou
  * @CreateDate: 2018/9/24 20:49
  * @Version: 1.0
@@ -46,7 +46,7 @@ public class DispatchThread extends Thread {
     @Value("${broker.path}")
     private String path;
     private volatile boolean isRunning = true;
-    private int port = 10000;
+    private int port = 10001;
     public DispatchThread( QueueHandler queueHandler) {
         super.setDaemon(true);
         this.queueHandler = queueHandler;
@@ -59,7 +59,7 @@ public class DispatchThread extends Thread {
                 BaseMessage message = queueHandler.take();
                 log.info("take message ,{}"+JSON.toJSONString(message));
 
-                //
+                //发送消息
                 dispatch(message);
                 queueHandler.handleNext(message);
 
@@ -90,7 +90,7 @@ public class DispatchThread extends Thread {
             String path  = Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName()+"/consumer";
             List<String> paths = client.getChildren(path);
             if(null == paths  && paths.size() == 0 ){
-                log.error("没有可以提供服务的broker");
+                log.error("没有可以提供服务的consumer");
             }else{
                 log.info("server list"+JSON.toJSONString(paths));
                 LoadBalance balance  = new RandomLoadBalance();
@@ -100,7 +100,7 @@ public class DispatchThread extends Thread {
             }
 
         } catch (Exception e) {
-            log.error("netty服务启动异常-" + e.getMessage());
+            log.error("netty推送服务启动异常-" + e.getMessage());
         } finally {
             group.shutdownGracefully();
         }

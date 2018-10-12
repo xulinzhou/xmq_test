@@ -82,7 +82,8 @@ public class NettyClient {
             client.addPersistentNode(Constants.MQ_ZK_ROOT);
             client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject());
             client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName());
-            String path  = Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName();
+            client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName()+"/broker");
+            String path  = Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName()+"/broker";
 
 
             List<String> paths = client.getChildren(path);

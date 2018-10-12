@@ -38,7 +38,7 @@ public class NettyServer {
     @Value("${netty.port}")
     private int port;
 
-    @Value("${broker.path}")
+    @Value("${broker.path}broker/")
     private String path;
 
     private QueueHandler queue;

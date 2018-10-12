@@ -70,7 +70,7 @@ public class FileStore {
         } finally {
             putMessagelLock.unlock();
             mappedByteBuffer.force();
-            new SynFileService(this.file,wrotePosition.intValue());
+            //new SynFileService(this.file,wrotePosition.intValue());
             if ( this.fileChannel != null) {
                 this.fileChannel.close();
             }
