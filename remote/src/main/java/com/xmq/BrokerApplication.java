@@ -7,13 +7,10 @@ import com.xmq.netty.server.NettyServer;
 import com.xmq.store.db.IDbStore;
 import com.xmq.store.db.impl.DbStore;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import javax.annotation.Resource;
 
@@ -28,7 +25,7 @@ import javax.annotation.Resource;
 @SpringBootApplication
 @AutoConfigureAfter(Handler.class)
 @Slf4j
-public class NettyApplication implements CommandLineRunner {
+public class BrokerApplication implements CommandLineRunner {
 
     @Resource
     private NettyServer nettyServer;
@@ -38,7 +35,7 @@ public class NettyApplication implements CommandLineRunner {
     Config config;
 
     public static void main(String[] args) {
-        SpringApplication.run(NettyApplication.class, args);
+        SpringApplication.run(BrokerApplication.class, args);
     }
 
     @Override

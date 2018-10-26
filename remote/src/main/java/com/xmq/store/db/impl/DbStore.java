@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.store
- * @Description: java类作用描述
+ * @Description: 数据库操作类
  * @Author: xulinzhou
  * @CreateDate: 2018/9/21 22:15
  * @Version: 1.0

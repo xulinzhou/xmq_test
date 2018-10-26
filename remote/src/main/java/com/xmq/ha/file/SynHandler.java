@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.ha
- * @Description: java类作用描述
+ * @Description: 同步类
  * @Author: xulinzhou
  * @CreateDate: 2018/10/6 13:51
  * @Version: 1.0
@@ -46,13 +46,11 @@ public class SynHandler extends ChannelHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
         LOGGER.info("客户端连接");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws  Exception {
-
         LOGGER.info("msgs"+msg.toString());
     }
 

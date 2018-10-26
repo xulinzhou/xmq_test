@@ -1,19 +1,13 @@
 package com.xmq.filestore;
 
-import com.sun.xml.internal.rngom.parse.host.Base;
-import com.xmq.NettyApplication;
+import com.xmq.BrokerApplication;
 import com.xmq.config.Config;
 import com.xmq.handler.FileHandler;
-import com.xmq.handler.Handler;
 import com.xmq.message.BaseMessage;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
@@ -29,7 +23,7 @@ import java.util.List;
  * @Version: 1.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = NettyApplication.class)
+@SpringBootTest(classes = BrokerApplication.class)
 public class FileStoreTest extends TestCase {
 
     @Resource

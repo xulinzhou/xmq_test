@@ -32,9 +32,7 @@ public class DataBaseUtils {
         p.put("poolPreparedStatements", "true");  
         p.put("maxPoolPreparedStatementPerConnectionSize", "20");  
         p.put("filters", "stat");  
-      
-       /*switch (sourceType) {    
-       case DRUID_MYSQL_MASTER:  */
+
          p.put("url",url);  
          p.put("username", username);  
          p.put("password", password);  
