@@ -68,6 +68,13 @@ public class DispatchThread extends Thread {
             }
         }
     }
+
+    /**
+     * 1.启动多线程分发数据
+     * 2.数据发送后写入数据库客户端，响应成功后，修改状态位
+     * 3.否则，定时任务启动，定时重新发送数据，知道成功为止
+     * @param message
+     */
     private void dispatch(final  BaseMessage message){
         log.info("netty服务启动: [port: {}]",port);
         EventLoopGroup group = new NioEventLoopGroup();
