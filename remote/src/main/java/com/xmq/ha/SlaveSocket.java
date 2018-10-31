@@ -2,16 +2,16 @@ package com.xmq.ha;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -19,37 +19,43 @@ import java.util.Set;
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.ha
- * @Description: slave 同步数据
+ * @Description: java类作用描述
  * @Author: xulinzhou
- * @CreateDate: 2018/10/26 16:41
+ * @CreateDate: 2018/10/6 16:53
  * @Version: 1.0
  */
 @Slf4j
 public class SlaveSocket {
     /*发送数据缓冲区*/
     private static ByteBuffer sBuffer = ByteBuffer.allocate(1024);
+
     /*接受数据缓冲区*/
     private static ByteBuffer rBuffer = ByteBuffer.allocate(1024);
+
     /*服务器端地址*/
     private InetSocketAddress SERVER;
-    private Selector selector;
-    private SocketChannel client;
-    private String receiveText;
-    private String sendText;
-    private int count=0;
-    private Charset charset = Charset.forName("UTF-8");
-    private SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss", java.util.Locale.US);
 
-    public SlaveSocket(){
+    private static Selector selector;
 
-        SERVER = new InetSocketAddress("localhost", 7777);
+    private static SocketChannel client;
+
+    private static String receiveText;
+
+    private static String sendText;
+
+    private static int count = 0;
+
+    private MappedByteBuffer mappedByteBuffer;
+
+    private FileChannel fileChannel;
+
+    private String path = "D:\\test1\\test_bak.txt";
+    public SlaveSocket(int port) {
+        SERVER = new InetSocketAddress("localhost", port);
         init();
     }
-    /**
-     *
-     */
-    public void init(){
 
+    public void init() {
         try {
             /*
              * 客户端向服务器端发起建立连接请求
@@ -65,59 +71,90 @@ public class SlaveSocket {
             while (true) {
                 selector.select();
                 Set<SelectionKey> keySet = selector.selectedKeys();
-                for(final SelectionKey key : keySet){
+                for (final SelectionKey key : keySet) {
                     handle(key);
-                }
+                };
                 keySet.clear();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws IOException {
 
-        new SlaveSocket();
-    }
 
-    /**
-     * @param selectionKey
-     * @throws IOException
-     * @throws ParseException
-     */
-    private void handle(SelectionKey selectionKey) throws IOException, ParseException {
-
+    private void handle(SelectionKey selectionKey) throws IOException {
         if (selectionKey.isConnectable()) {
             /*
              * 连接建立事件，已成功连接至服务器
              */
-            client = (SocketChannel) selectionKey.channel();
+            client = (SocketChannel)selectionKey.channel();
             if (client.isConnectionPending()) {
                 client.finishConnect();
                 log.info("connect success !");
                 sBuffer.clear();
-                sBuffer.put((sdf.format(new Date()) + ": connected!你好").getBytes("UTF-8"));
+                sBuffer.put((new Date() + " connected!").getBytes());
                 sBuffer.flip();
                 client.write(sBuffer);//发送信息至服务器
-
+                /* 原文来自站长网
+                 * 启动线程一直监听客户端输入，有信息输入则发往服务器端
+                 * 因为输入流是阻塞的，所以单独线程监听
+                 */
+                new Thread() {
+                    @Override
+                    public void run() {
+                        while (true) {
+                            try {
+                                sBuffer.clear();
+                                long position  = file();
+                                log.info("sendText position " +position);
+                                SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss", java.util.Locale.US);
+                                sBuffer.put((String.valueOf(position)).getBytes("UTF-8"));
+                                sBuffer.flip();
+                                client.write(sBuffer);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                break;
+                            }
+                        }
+                    };
+                }.start();
             }
             //注册读事件
             client.register(selector, SelectionKey.OP_READ);
-        } else if (selectionKey.isReadable()) {
+        }
+        else if (selectionKey.isReadable()) {
             /*
              * 读事件触发
              * 有从服务器端发送过来的信息，读取输出到屏幕上后，继续注册读事件
              * 监听服务器端发送信息
              */
-            client = (SocketChannel) selectionKey.channel();
+            client = (SocketChannel)selectionKey.channel();
+            rBuffer.clear();
             count = client.read(rBuffer);
             if (count > 0) {
                 receiveText = new String(rBuffer.array(), 0, count);
-                log.info(receiveText);
-                client = (SocketChannel) selectionKey.channel();
+                log.info("receiveText:"+receiveText);
+                File file = new File(path);
+                fileChannel = new RandomAccessFile(file, "rw").getChannel();
+                mappedByteBuffer =  fileChannel.map(FileChannel.MapMode.READ_WRITE,0, 1024);
+                mappedByteBuffer.put(rBuffer);
+                client = (SocketChannel)selectionKey.channel();
                 client.register(selector, SelectionKey.OP_READ);
-                rBuffer.clear();
             }
         }
+    }
+    public long file() throws  Exception{
+        File file = new File(path);
+        fileChannel = new RandomAccessFile(file, "rw").getChannel();
+        long position = fileChannel.position();
+        return position;
+    }
+    public static void main(String[] args) throws Exception {
+        SlaveSocket client = new SlaveSocket(7777);
+        client.file();
+
     }
 }
