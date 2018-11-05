@@ -98,11 +98,6 @@ public class MasterSocket {
         String receiveText = null;
         int count = 0;
         if (selectionKey.isAcceptable()) {
-            /*
-             * 客户端请求连接事件
-             * serversocket为该客户端建立socket连接，将此socket注册READ事件，监听客户端输入
-             * READ事件：当客户端发来数据，并已被服务器控制线程正确读取时，触发该事件
-             */
             server = (ServerSocketChannel)selectionKey.channel();
             client = server.accept();
             client.configureBlocking(false);
@@ -110,9 +105,6 @@ public class MasterSocket {
             client.register(selector, SelectionKey.OP_READ);
         }
         else if (selectionKey.isReadable()) {
-            /*
-             * READ事件，收到客户端发送数据，读取数据后继续注册监听客户端
-             */
             client = (SocketChannel)selectionKey.channel();
             rBuffer.clear();
             count = client.read(rBuffer);
@@ -121,7 +113,6 @@ public class MasterSocket {
                 receiveText = String.valueOf(cs.decode(rBuffer).array());
                 log.info(client.toString() + ":" + receiveText);
                 //dispatch(client, receiveText);
-
                 //client = (SocketChannel)selectionKey.channel();
             }
         }
@@ -140,15 +131,13 @@ public class MasterSocket {
             for (Map.Entry<String, SocketChannel> entry : clientsMap.entrySet()) {
                 SocketChannel temp = entry.getValue();
                 if (!client.equals(temp)) {
-
-
                     Long position = Long.parseLong(info);
                     File file = new File("D:\\test1\\test.txt");
                     this.fileChannel = new RandomAccessFile(file, "rw").getChannel();
                     this.mappedByteBuffer = this.fileChannel.map(FileChannel.MapMode.READ_WRITE,position.intValue(), 1024);
                     int intPosition = mappedByteBuffer.getInt(0);
                     //写入position
-                    byte[] dst = new byte[intPosition];// 每次读出3M的内容
+                    byte[] dst = new byte[intPosition];//
                     for (int i = 0; i < intPosition; i++) {
                         dst[i] = mappedByteBuffer.get(i);
                     }

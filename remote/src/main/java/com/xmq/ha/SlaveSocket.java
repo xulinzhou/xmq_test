@@ -57,17 +57,13 @@ public class SlaveSocket {
 
     public void init() {
         try {
-            /*
-             * 客户端向服务器端发起建立连接请求
-             */
+
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.configureBlocking(false);
             selector = Selector.open();
             socketChannel.register(selector, SelectionKey.OP_CONNECT);
             socketChannel.connect(SERVER);
-            /*
-             * 轮询监听客户端上注册事件的发生
-             */
+
             while (true) {
                 selector.select();
                 Set<SelectionKey> keySet = selector.selectedKeys();
@@ -86,9 +82,7 @@ public class SlaveSocket {
 
     private void handle(SelectionKey selectionKey) throws IOException {
         if (selectionKey.isConnectable()) {
-            /*
-             * 连接建立事件，已成功连接至服务器
-             */
+
             client = (SocketChannel)selectionKey.channel();
             if (client.isConnectionPending()) {
                 client.finishConnect();
@@ -97,10 +91,7 @@ public class SlaveSocket {
                 sBuffer.put((new Date() + " connected!").getBytes());
                 sBuffer.flip();
                 client.write(sBuffer);//发送信息至服务器
-                /* 原文来自站长网
-                 * 启动线程一直监听客户端输入，有信息输入则发往服务器端
-                 * 因为输入流是阻塞的，所以单独线程监听
-                 */
+
                 new Thread() {
                     @Override
                     public void run() {
@@ -126,11 +117,7 @@ public class SlaveSocket {
             client.register(selector, SelectionKey.OP_READ);
         }
         else if (selectionKey.isReadable()) {
-            /*
-             * 读事件触发
-             * 有从服务器端发送过来的信息，读取输出到屏幕上后，继续注册读事件
-             * 监听服务器端发送信息
-             */
+
             client = (SocketChannel)selectionKey.channel();
             rBuffer.clear();
             count = client.read(rBuffer);
