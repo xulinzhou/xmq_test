@@ -66,12 +66,10 @@ public class NioSocketServer extends Thread {
                         }
                     }
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                     try {
                         serverSocketChannel.close();
                     } catch (IOException e1) {
-                        // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
                 }
@@ -89,7 +87,6 @@ public class NioSocketServer extends Thread {
                 socketChannel.register(selector, SelectionKey.OP_READ);
 
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -123,12 +120,11 @@ public class NioSocketServer extends Thread {
                             cacheBuffer.put(byteBuffer);
                             break;
                         }
-                    } else {//
-                        if (byteBuffer.remaining() >= bodyLen) {//
+                    } else {
+                        if (byteBuffer.remaining() >= bodyLen) {
                             byte[] bodyByte = new byte[bodyLen];
                             byteBuffer.get(bodyByte, 0, bodyLen);
                             bodyLen = -1;
-
                             log.info("receive from clien content is:" + new String(bodyByte));
                         } else {
                             byteBuffer.reset();
@@ -142,12 +138,10 @@ public class NioSocketServer extends Thread {
 
                 selectionKey.interestOps(SelectionKey.OP_READ);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 try {
                     serverSocketChannel.close();
                     selectionKey.cancel();
                 } catch (IOException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
                 e.printStackTrace();
@@ -170,10 +164,8 @@ public class NioSocketServer extends Thread {
                     selectionKey.cancel();
                     serverSocketChannel.close();
                 } catch (IOException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -192,6 +184,16 @@ public class NioSocketServer extends Thread {
                 value += (bytes[i] & 0x000000FF) << shift;// 往高位游
             }
             return value;
+        }
+
+        /**
+         * 启动服务端
+         * @throws Exception
+         */
+        public void startServer() throws Exception {
+            NioSocketServer server = new NioSocketServer();
+            server.initServer();
+            server.start();
         }
 
         public static void main(String args[]) throws IOException {

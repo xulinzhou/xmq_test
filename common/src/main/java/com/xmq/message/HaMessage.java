@@ -12,7 +12,7 @@ import lombok.Data;
  */
 @Data
 public class HaMessage {
-    private int length ;
+    private int position ;
     private String message;
 
 }

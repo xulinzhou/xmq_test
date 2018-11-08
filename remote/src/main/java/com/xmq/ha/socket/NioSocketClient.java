@@ -1,18 +1,21 @@
 package com.xmq.ha.socket;
-
 import com.alibaba.fastjson.JSON;
 import com.xmq.ha.HaMessageSend;
 import com.xmq.message.HaMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.*;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -34,20 +37,7 @@ public class NioSocketClient extends Thread implements HaMessageSend{
     private int port = 8888;
     private static Map<String, SocketChannel> clientsMap = new ConcurrentHashMap<String, SocketChannel>();
 
-    public static void main(String args[]) throws IOException {
-        NioSocketClient client = new NioSocketClient();
-        client.initClient();
-        client.start();
-        try{
-              Thread.sleep(2000);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        HaMessage message = new HaMessage();
-        message.setLength(100);
-        message.setMessage("111111111111111111111111111");
-        client.sendMessage(message);
-    }
+
 
     public NioSocketClient() {
     }
@@ -93,7 +83,7 @@ public class NioSocketClient extends Thread implements HaMessageSend{
                     }
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                log.error("服务端启动异常！");
                 e.printStackTrace();
             }
         }
@@ -111,7 +101,7 @@ public class NioSocketClient extends Thread implements HaMessageSend{
 
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            log.error("连接异常");
             e.printStackTrace();
         }
     }
@@ -160,7 +150,6 @@ public class NioSocketClient extends Thread implements HaMessageSend{
                 channel.register(selector, SelectionKey.OP_READ);
             }
         } catch (ClosedChannelException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -186,7 +175,7 @@ public class NioSocketClient extends Thread implements HaMessageSend{
 
         SocketChannel channel = (SocketChannel)clientsMap.get(String.valueOf(port));;
 
-        log.info("channel============="+channel);
+        log.info("syn "+channel);
         String jsonString = JSON.toJSONString(message);
         int head = (jsonString).getBytes().length;
         ByteBuffer byteBuffer = ByteBuffer.allocate(4 + head);
@@ -202,5 +191,37 @@ public class NioSocketClient extends Thread implements HaMessageSend{
             }
         }
 
+    }
+
+
+    public static void main(String args[]) throws IOException {
+        NioSocketClient client = new NioSocketClient();
+       /* client.initClient();
+        client.start();
+        try{
+            Thread.sleep(2000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
+        Charset charset = Charset.defaultCharset();
+        CharsetDecoder charsetDecoder = charset.newDecoder();
+
+        StringBuffer sb = new StringBuffer();
+        String filePath = "D:\\test1\\test.txt";
+        File file =new File(filePath);
+        FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
+        int start= 0;
+        MappedByteBuffer mb = fc.map(FileChannel.MapMode.READ_WRITE,start,file.length());
+
+        mb.position(100);
+        mb.flip();
+        String sendMessage = charsetDecoder.decode(mb).toString();
+        System.out.println("=================="+sendMessage);
+
+
+        /*HaMessage message = new HaMessage();
+        message.setPosition(100);
+        message.setMessage("message info new");
+        client.sendMessage(message);*/
     }
 }
