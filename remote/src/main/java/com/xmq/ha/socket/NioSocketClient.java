@@ -1,4 +1,5 @@
 package com.xmq.ha.socket;
+import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.fastjson.JSON;
 import com.xmq.ha.HaMessageSend;
 import com.xmq.message.HaMessage;
@@ -34,7 +35,8 @@ public class NioSocketClient extends Thread implements HaMessageSend{
     private SocketChannel socketChannel;
     private Selector selector = null;
     private int clientId;
-    private int port = 8888;
+    private static int port = 8888;
+    private static  String PATH = "D:\\test1\\test.txt";
     private static Map<String, SocketChannel> clientsMap = new ConcurrentHashMap<String, SocketChannel>();
 
 
@@ -156,7 +158,6 @@ public class NioSocketClient extends Thread implements HaMessageSend{
 
     /**
      * int到byte[]
-     *
      * @param
      * @return
      */
@@ -171,12 +172,14 @@ public class NioSocketClient extends Thread implements HaMessageSend{
     }
 
     @Override
-    public void sendMessage(HaMessage message) {
+    public void sendMessage(String message) {
 
         SocketChannel channel = (SocketChannel)clientsMap.get(String.valueOf(port));;
-
-        log.info("syn "+channel);
-        String jsonString = JSON.toJSONString(message);
+        HaMessage haMessage = new HaMessage();
+        haMessage.setPosition(100);
+        haMessage.setMessage(message);
+        log.info("syn channel info : "+channel);
+        String jsonString = JSON.toJSONString(haMessage);
         int head = (jsonString).getBytes().length;
         ByteBuffer byteBuffer = ByteBuffer.allocate(4 + head);
         byteBuffer.put(intToBytes(head));
@@ -193,22 +196,23 @@ public class NioSocketClient extends Thread implements HaMessageSend{
 
     }
 
+    public void File(){
 
+    }
     public static void main(String args[]) throws IOException {
         NioSocketClient client = new NioSocketClient();
-       /* client.initClient();
+        client.initClient();
         client.start();
         try{
             Thread.sleep(2000);
         }catch (Exception e){
             e.printStackTrace();
-        }*/
+        }
+
         Charset charset = Charset.defaultCharset();
         CharsetDecoder charsetDecoder = charset.newDecoder();
 
-        StringBuffer sb = new StringBuffer();
-        String filePath = "D:\\test1\\test.txt";
-        File file =new File(filePath);
+        File file =new File(PATH);
         FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
         int start= 0;
         MappedByteBuffer mb = fc.map(FileChannel.MapMode.READ_WRITE,start,file.length());
@@ -216,8 +220,13 @@ public class NioSocketClient extends Thread implements HaMessageSend{
         mb.position(100);
         mb.flip();
         String sendMessage = charsetDecoder.decode(mb).toString();
-        System.out.println("=================="+sendMessage);
-
+        log.info("sendMessage=================="+sendMessage);
+        HaMessage message = new HaMessage();
+        String msg = JSON.toJSONString(sendMessage);
+        log.info("msg.length==================="+msg.length());
+        message.setPosition(msg.length());
+        message.setMessage(msg);
+        client.sendMessage(sendMessage);
 
         /*HaMessage message = new HaMessage();
         message.setPosition(100);

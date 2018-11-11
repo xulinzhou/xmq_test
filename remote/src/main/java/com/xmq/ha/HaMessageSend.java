@@ -13,5 +13,5 @@ import com.xmq.message.HaMessage;
  */
 public interface HaMessageSend {
 
-    public  void sendMessage(HaMessage message);
+    public  void sendMessage(String message);
 }

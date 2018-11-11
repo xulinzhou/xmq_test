@@ -1,14 +1,17 @@
 package com.xmq.ha.socket;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.xmq.message.HaMessage;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -27,12 +30,11 @@ public class NioSocketServer extends Thread {
         ServerSocketChannel serverSocketChannel = null;
         Selector selector = null;
         SelectionKey selectionKey = null;
-        // 缓存一个read事件中一个不完整的包，以待下次read事件到来时拼接成完整的包
-        ByteBuffer cacheBuffer = ByteBuffer.allocate(100);
         private int port = 8888;
         boolean cache = false;
+        //备份数据包
+        private static String PATH = "D:\\test1\\test_bak.txt";
         int i=0;
-        /*映射客户端channel */
         private static Map<String, SocketChannel> clientsMap = new ConcurrentHashMap<String, SocketChannel>();
         public void initServer() throws IOException {
             selector = Selector.open();
@@ -99,39 +101,31 @@ public class NioSocketServer extends Thread {
 
             try {
                 SocketChannel channel = (SocketChannel) selectionKey.channel();
-                ByteBuffer byteBuffer = ByteBuffer.allocate(100);
+                ByteBuffer byteBuffer = ByteBuffer.allocate(1000);
                 int bodyLen = -1;
-                if (cache) {
-                    cacheBuffer.flip();
-                    byteBuffer.put(cacheBuffer);
-                }
+
                 channel.read(byteBuffer);//
                 byteBuffer.flip();//
                 while (byteBuffer.remaining() > 0) {
                     if (bodyLen == -1) {
-                        if (byteBuffer.remaining() >= head_length) {// 可以读出包头，否则缓存
+                        if (byteBuffer.remaining() >= head_length) {
                             byteBuffer.mark();
                             byteBuffer.get(headByte);
                             bodyLen = byteArrayToInt(headByte);
-                        } else {
-                            byteBuffer.reset();
-                            cache = true;
-                            cacheBuffer.clear();
-                            cacheBuffer.put(byteBuffer);
-                            break;
                         }
                     } else {
                         if (byteBuffer.remaining() >= bodyLen) {
+                            File file =new File(PATH);
+                            FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
+                            int start= 0;
+                            MappedByteBuffer mb = fc.map(FileChannel.MapMode.READ_WRITE,start,bodyLen);
                             byte[] bodyByte = new byte[bodyLen];
                             byteBuffer.get(bodyByte, 0, bodyLen);
                             bodyLen = -1;
-                            log.info("receive from clien content is:" + new String(bodyByte));
-                        } else {
-                            byteBuffer.reset();
-                            cacheBuffer.clear();
-                            cacheBuffer.put(byteBuffer);
-                            cache = true;
-                            break;
+                            String str = new String(bodyByte);
+                            HaMessage ha  = JSON.parseObject(str,HaMessage.class);
+                            mb.put(ha.getMessage().getBytes());
+                            log.info("receive from clien content is:" + ha.getMessage());
                         }
                     }
                 }
