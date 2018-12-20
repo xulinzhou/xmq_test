@@ -5,9 +5,7 @@ import com.xmq.ha.HaMessageSend;
 import com.xmq.message.HaMessage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -37,6 +35,7 @@ public class NioSocketClient extends Thread implements HaMessageSend{
     private int clientId;
     private static int port = 8888;
     private static  String PATH = "D:\\test1\\test.txt";
+    private static  String CHECK_POINT = "D:\\test1\\checkpoint.txt";
     private static Map<String, SocketChannel> clientsMap = new ConcurrentHashMap<String, SocketChannel>();
 
 
@@ -171,12 +170,41 @@ public class NioSocketClient extends Thread implements HaMessageSend{
         return result;
     }
 
+
+    private int readPosition(){
+        File file = new File(CHECK_POINT);
+        int position = 0;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String s = null;
+            while((s = br.readLine())!=null){
+                log.info("position==="+s);
+                position = Integer.parseInt(s);
+            }
+            br.close();;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return position;
+    }
+
+    private void writePosition(int position){
+        File file = new File(CHECK_POINT);
+        try {
+            FileWriter fr = new FileWriter(file);
+            fr.write(position);
+            String s = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void sendMessage(String message) {
 
         SocketChannel channel = (SocketChannel)clientsMap.get(String.valueOf(port));;
+        int readPosition = readPosition();
         HaMessage haMessage = new HaMessage();
-        haMessage.setPosition(100);
+        haMessage.setPosition(readPosition);
         haMessage.setMessage(message);
         log.info("syn channel info : "+channel);
         String jsonString = JSON.toJSONString(haMessage);
@@ -193,7 +221,7 @@ public class NioSocketClient extends Thread implements HaMessageSend{
                 e.printStackTrace();
             }
         }
-
+        writePosition(readPosition+head);
     }
 
     public void File(){

@@ -2,6 +2,8 @@ package com.xmq.message;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.message
@@ -11,7 +13,7 @@ import lombok.Data;
  * @Version: 1.0
  */
 @Data
-public class HaMessage {
+public class HaMessage implements Serializable{
     private int position ;
     private String message;
 
