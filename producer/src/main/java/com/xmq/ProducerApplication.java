@@ -32,8 +32,7 @@ public class ProducerApplication implements CommandLineRunner {
     private MessageProducer messageProducer;
     @Override
     public void run(String... args) throws Exception {
-
-        BaseMessage message =new BaseMessage("11","test","group1");
+       BaseMessage message =new BaseMessage("11","test","group1");
         messageProducer.sendMessage(message);
     }
 }

@@ -30,7 +30,6 @@ public class BrokerApplication implements CommandLineRunner {
     @Resource
     private NettyServer nettyServer;
 
-
     @Resource
     Config config;
 
@@ -44,15 +43,9 @@ public class BrokerApplication implements CommandLineRunner {
     }
     public void start() {
         try {
-            IDbStore store  =    new DbStore(config);
-            QueueHandler queue = new QueueHandler();
-            DbHandler dbHandler = new DbHandler(store);
-            FileHandler fileHandler = new FileHandler(config);
-            queue.setNextHandler(dbHandler);
-            dbHandler.setNextHandler(fileHandler);
-            //多线程处理队列数据
-            new DispatchThread(queue).start();
-            nettyServer.start(queue);
+
+            nettyServer.start();;
+
         }catch (Exception e){
             e.printStackTrace();
         }

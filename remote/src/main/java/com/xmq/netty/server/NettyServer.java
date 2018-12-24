@@ -1,5 +1,7 @@
 package com.xmq.netty.server;
 import com.xmq.handler.QueueHandler;
+import com.xmq.netty.DecodeHandler;
+import com.xmq.netty.EncodeHandler;
 import com.xmq.netty.MsgpackDecoder;
 import com.xmq.netty.MsgpackEncoder;
 import com.xmq.resolver.ZKClient;
@@ -19,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
+import java.util.concurrent.Executor;
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.netty
@@ -36,50 +41,62 @@ public class NettyServer {
      * 端口号
      */
     @Value("${netty.port}")
-    private int port;
+    private int port = 1000;
 
     @Value("${broker.path}broker/")
     private String path;
 
     private QueueHandler queue;
+
+    private final NioEventLoopGroup bossGroup;
+    private final NioEventLoopGroup workerGroup;
+    private final ServerBootstrap bootstrap;
+    private volatile Channel channel;
+
     /**
      * 启动服务器方法
      * @param
      */
-    public void start(final QueueHandler queue) {
+    public  NettyServer() {
+        String name = "test";
         this.queue = queue;
+        this.bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(name + "-netty-server-boss", true));
+        this.workerGroup = new NioEventLoopGroup(10, new DefaultThreadFactory(name + "-netty-server-worker", true));;
+        this.bootstrap = new ServerBootstrap();
+        this.port = port;
+    }
+
+    public void start() {
         log.info("netty服务启动: [port: {}]",port);
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        bootstrap.option(ChannelOption.SO_REUSEADDR, true);
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
+        bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ch.pipeline().addLast("encoder", new EncodeHandler());
+                        ch.pipeline().addLast("decoder", new DecodeHandler());
+                        ch.pipeline().addLast("dispatcher", new ServerChannelHandlerAdapter(queue));
+                    }
+                });
         try {
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(bossGroup, workerGroup);
-            serverBootstrap.channel(NioServerSocketChannel.class);
-            serverBootstrap.handler(new LoggingHandler(LogLevel.INFO));
-            serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
-            serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-            serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                protected void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast("frameDecoder",new LengthFieldBasedFrameDecoder(1024, 0, 2,0,2));
-                    ch.pipeline().addLast("msgpack decoder",new MsgpackDecoder());
-                    ch.pipeline().addLast("frameEncoder",new LengthFieldPrepender(2));
-                    ch.pipeline().addLast("msgpack encoder",new MsgpackEncoder());
-                    ch.pipeline().addLast( new ServerChannelHandlerAdapter(queue));
-                }
-            });
+            channel = bootstrap.bind(port).await().channel();
+
+
             ZKClient client = new ZKClient( IpUtil.getServerIp()+":2181");
             client.addEphemeralNode(path+IpUtil.getServerIp());
-            // 绑定端口,开始接收进来的连接
-            ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
+          /*  // 绑定端口,开始接收进来的连接
+            ChannelFuture channelFuture = bootstrap.bind(port).sync();*/
             // 等待服务器socket关闭
-            channelFuture.channel().closeFuture().sync();
+            channel.closeFuture().sync();
+
         } catch (Exception e) {
-            log.error("netty服务启动异常-" + e.getMessage());
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+            log.error("server start fail", e);
+            e.printStackTrace();
         }
+        log.info("listen on port {}", port);
     }
+
 
 }

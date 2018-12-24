@@ -36,7 +36,6 @@ public class SynHandler extends ChannelHandlerAdapter {
         ctx.close();
     }
 
-    @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
     }
@@ -44,12 +43,10 @@ public class SynHandler extends ChannelHandlerAdapter {
     /**
      * 客户端连接到服务端后进行
      */
-    @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("客户端连接");
     }
 
-    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws  Exception {
         LOGGER.info("msgs"+msg.toString());
     }

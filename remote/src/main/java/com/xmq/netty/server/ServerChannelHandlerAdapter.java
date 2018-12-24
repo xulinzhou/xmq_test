@@ -1,11 +1,15 @@
 package com.xmq.netty.server;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.xmq.handler.QueueHandler;
 import com.xmq.message.BaseMessage;
+import com.xmq.netty.Datagram;
 import com.xmq.util.IpUtil;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 import org.slf4j.Logger;
@@ -24,7 +28,7 @@ import java.util.List;
  */
 @Component
 @ChannelHandler.Sharable
-public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
+public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Datagram> {
 
     private QueueHandler queue;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandlerAdapter.class);
@@ -39,7 +43,6 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
         ctx.close();
     }
 
-    @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
     }
@@ -47,23 +50,49 @@ public class ServerChannelHandlerAdapter extends ChannelHandlerAdapter {
     /**
      * 客户端连接到服务端后进行
      */
-    @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
         LOGGER.info("客户端连接");
     }
 
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws  Exception {
-        String clientIp = IpUtil.getClientIp(ctx);
-        List<Value> msg_new = (List<Value>)msg;
-        BaseMessage baseMessage = MessagePack.unpack(MessagePack.pack(msg_new), BaseMessage.class);
-        //收到消息推送
-        if(null!=baseMessage){
-            queue.add(baseMessage);
+    public void channelRead(ChannelHandlerContext ctx, Datagram msg) throws  Exception {
+
+        ByteBuf bf = msg.getBody();
+
+        LOGGER.info("SimpleServerHandler.channelRead"+convertByteBufToString(bf));
+        LOGGER.info("msgs"+JSONUtils.toJSONString(msg));
+    }
+
+    public String convertByteBufToString(ByteBuf buf) {
+        String str;
+        if (buf.hasArray()) { // 处理堆缓冲区
+            str = new String(buf.array(), buf.arrayOffset() + buf.readerIndex(), buf.readableBytes());
+        } else { // 处理直接缓冲区以及复合缓冲区
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.getBytes(buf.readerIndex(), bytes);
+            str = new String(bytes, 0, buf.readableBytes());
         }
-        LOGGER.info("SimpleServerHandler.channelRead");
-        LOGGER.info("msgs"+msg.toString());
+        return str;
+    }
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, Datagram command) throws Exception {
+        ByteBuf bf = command.getBody();
+        LOGGER.info("SimpleServerHandler.channelRead"+convertByteBufToString(bf));
+        command.setTime(System.currentTimeMillis());
+        processMessageReceived(ctx, command);
+
+        ctx.writeAndFlush(command);
+    }
+    private void processMessageReceived(ChannelHandlerContext ctx, Datagram cmd) {
+        if (cmd != null) {
+
+            processRequestCommand(ctx, cmd);
+
+        }
+    }
+
+    private void processRequestCommand(ChannelHandlerContext ctx, Datagram cmd) {
+
     }
 
 }

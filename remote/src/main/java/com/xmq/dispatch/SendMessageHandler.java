@@ -23,19 +23,16 @@ public final class SendMessageHandler extends ChannelHandlerAdapter {
         this.message =message;
     }
 
-    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         log.info("SimpleClientHandler.channelRead");
     }
 
-    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         // 当出现异常就关闭连接
         cause.printStackTrace();
         ctx.close();
     }
     // 连接成功后，向server发送消息
-    @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("====>send message "+ JSON.toJSONString(message));
         ctx.write(message);

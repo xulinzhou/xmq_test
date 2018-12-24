@@ -34,7 +34,7 @@
     <lombok>1.16.20</lombok>
     <msgpack>0.6.12</msgpack>
     <fastjson>1.2.47</fastjson>
-    <netty.version>5.0.0.Alpha2</netty.version>
+    <netty.version>4.0.36.Final</netty.version>
     <jboss.marshalling>2.0.5.Final</jboss.marshalling>
   </properties>
 
