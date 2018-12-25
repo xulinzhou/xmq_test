@@ -1,9 +1,11 @@
 package com.xmq.netty.server;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import com.google.common.collect.Maps;
 import com.xmq.handler.QueueHandler;
 import com.xmq.message.BaseMessage;
 import com.xmq.netty.Datagram;
+import com.xmq.netty.RequestProcessor;
 import com.xmq.util.IpUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ProjectName: xmq
@@ -29,6 +32,8 @@ import java.util.List;
 @Component
 @ChannelHandler.Sharable
 public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Datagram> {
+
+    private final Map<Short, RequestProcessor> commands = Maps.newHashMap();
 
     private QueueHandler queue;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandlerAdapter.class);
@@ -85,14 +90,15 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
     }
     private void processMessageReceived(ChannelHandlerContext ctx, Datagram cmd) {
         if (cmd != null) {
+            final RequestProcessor executor = commands.get(cmd.getHeader().getRequestCode());
 
-            processRequestCommand(ctx, cmd);
+            //processRequestCommand(ctx, cmd);
 
         }
     }
 
-    private void processRequestCommand(ChannelHandlerContext ctx, Datagram cmd) {
+    /*private void processRequestCommand(ChannelHandlerContext ctx, Datagram cmd) {
 
-    }
+    }*/
 
 }

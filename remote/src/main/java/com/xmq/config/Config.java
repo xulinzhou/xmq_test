@@ -25,4 +25,11 @@ public class Config {
     private String password;
     @Value("${file.path}")
     private String filePath;
+
+    @Value("${broker.path}broker/")
+    private String path;
+
+    @Value("${netty.port}")
+    private int port = 1000;
+
 }

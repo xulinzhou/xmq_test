@@ -13,7 +13,7 @@ import com.xmq.netty.server.NettyServer;
 public class NettyServerTest {
 
     public static void main(String[] args) {
-       NettyServer server = new  NettyServer();
-       server.start();;
+       //NettyServer server = new  NettyServer();
+       //server.start();;
     }
 }

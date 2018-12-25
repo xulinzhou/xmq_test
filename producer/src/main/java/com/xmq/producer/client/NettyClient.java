@@ -63,7 +63,7 @@ public class NettyClient {
                 }
             });
 
-            ZKClient client =    new ZKClient(IpUtil.getServerIp()+":2181");
+           /* ZKClient client =    new ZKClient(IpUtil.getServerIp()+":2181");
             client.addPersistentNode(Constants.MQ_ZK_ROOT);
             client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject());
             client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName());
@@ -82,7 +82,7 @@ public class NettyClient {
                 f.channel().closeFuture().sync();
 
 
-            }
+            }*/
 
         } catch (Exception e) {
             e.printStackTrace();

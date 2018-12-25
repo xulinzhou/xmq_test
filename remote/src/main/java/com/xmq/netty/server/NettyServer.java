@@ -32,7 +32,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @CreateDate: 2018/9/16 14:00
  * @Version: 1.0
  */
-@Component
+
 public class NettyServer {
 
     private Logger log = LoggerFactory.getLogger(NettyServer.class);
@@ -40,12 +40,12 @@ public class NettyServer {
     /**
      * 端口号
      */
-    @Value("${netty.port}")
+    /*@Value("${netty.port}")
     private int port = 1000;
 
     @Value("${broker.path}broker/")
-    private String path;
-
+    private String path;*/
+    private int port = 1000;
     private QueueHandler queue;
 
     private final NioEventLoopGroup bossGroup;
@@ -57,8 +57,7 @@ public class NettyServer {
      * 启动服务器方法
      * @param
      */
-    public  NettyServer() {
-        String name = "test";
+    public  NettyServer(String name,int port) {
         this.queue = queue;
         this.bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(name + "-netty-server-boss", true));
         this.workerGroup = new NioEventLoopGroup(10, new DefaultThreadFactory(name + "-netty-server-worker", true));;
@@ -84,8 +83,8 @@ public class NettyServer {
             channel = bootstrap.bind(port).await().channel();
 
 
-            ZKClient client = new ZKClient( IpUtil.getServerIp()+":2181");
-            client.addEphemeralNode(path+IpUtil.getServerIp());
+            //ZKClient client = new ZKClient( IpUtil.getServerIp()+":2181");
+            //client.addEphemeralNode(path+IpUtil.getServerIp());
           /*  // 绑定端口,开始接收进来的连接
             ChannelFuture channelFuture = bootstrap.bind(port).sync();*/
             // 等待服务器socket关闭

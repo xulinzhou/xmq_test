@@ -27,8 +27,7 @@ import javax.annotation.Resource;
 @Slf4j
 public class BrokerApplication implements CommandLineRunner {
 
-    @Resource
-    private NettyServer nettyServer;
+
 
     @Resource
     Config config;
@@ -43,7 +42,7 @@ public class BrokerApplication implements CommandLineRunner {
     }
     public void start() {
         try {
-
+             NettyServer nettyServer = new NettyServer("","");
             nettyServer.start();;
 
         }catch (Exception e){
