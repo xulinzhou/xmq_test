@@ -12,7 +12,10 @@ public enum MessageTypeEnum {
 
     NULL(-1, "空命令"),
     SYN_MESSAGE(10, "同步消息"),
-    WAIT_CANCELED_5(105, "等待取消");
+    WAIT_CANCELED_5(105, "等待取消"),
+
+    SYN_ERROR(400, "同步消息异常");
+
 
     MessageTypeEnum(int type, String desc) {
         this.type = type;

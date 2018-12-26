@@ -1,9 +1,6 @@
 package com.xmq.netty.server;
 import com.xmq.handler.QueueHandler;
-import com.xmq.netty.DecodeHandler;
-import com.xmq.netty.EncodeHandler;
-import com.xmq.netty.MsgpackDecoder;
-import com.xmq.netty.MsgpackEncoder;
+import com.xmq.netty.*;
 import com.xmq.resolver.ZKClient;
 import com.xmq.util.Constants;
 import com.xmq.util.IpUtil;
@@ -22,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -52,6 +51,7 @@ public class NettyServer {
     private final NioEventLoopGroup workerGroup;
     private final ServerBootstrap bootstrap;
     private volatile Channel channel;
+    private final ServerChannelHandlerAdapter serverHandler;
 
     /**
      * 启动服务器方法
@@ -62,7 +62,9 @@ public class NettyServer {
         this.bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(name + "-netty-server-boss", true));
         this.workerGroup = new NioEventLoopGroup(10, new DefaultThreadFactory(name + "-netty-server-worker", true));;
         this.bootstrap = new ServerBootstrap();
+        this.serverHandler = new ServerChannelHandlerAdapter();
         this.port = port;
+
     }
 
     public void start() {
@@ -76,7 +78,7 @@ public class NettyServer {
                     protected void initChannel(SocketChannel ch) {
                         ch.pipeline().addLast("encoder", new EncodeHandler());
                         ch.pipeline().addLast("decoder", new DecodeHandler());
-                        ch.pipeline().addLast("dispatcher", new ServerChannelHandlerAdapter(queue));
+                        ch.pipeline().addLast("dispatcher", serverHandler);
                     }
                 });
         try {
@@ -96,6 +98,10 @@ public class NettyServer {
         }
         log.info("listen on port {}", port);
     }
-
+    public void registerProcessor(final short requestCode,
+                                  final RequestProcessor processor,
+                                  final ExecutorService executorService) {
+        serverHandler.registerProcessor(requestCode, processor, executorService);
+    }
 
 }

@@ -15,6 +15,7 @@
     <module>producer</module>
     <module>consumer</module>
       <module>meta</module>
+      <module>server</module>
   </modules>
 
 

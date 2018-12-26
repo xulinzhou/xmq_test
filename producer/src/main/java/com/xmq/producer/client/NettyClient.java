@@ -42,6 +42,8 @@ public class NettyClient {
     public NettyClient() {
         this.host = "127.0.0.1";
     }
+
+
     /**
      * 连接方法
      */
@@ -96,4 +98,9 @@ public class NettyClient {
         this.message = message;
         connect();
     }
+
+    public  void synMessage(String address,Datagram datagram){
+
+    }
+
 }

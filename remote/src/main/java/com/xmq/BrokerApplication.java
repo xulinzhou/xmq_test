@@ -42,7 +42,7 @@ public class BrokerApplication implements CommandLineRunner {
     }
     public void start() {
         try {
-             NettyServer nettyServer = new NettyServer("","");
+             NettyServer nettyServer = new NettyServer("",8888);
             nettyServer.start();;
 
         }catch (Exception e){
