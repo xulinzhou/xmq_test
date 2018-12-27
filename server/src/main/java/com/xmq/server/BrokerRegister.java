@@ -1,6 +1,9 @@
 package com.xmq.server;
 
+import com.xmq.netty.Datagram;
+import com.xmq.netty.RemotingHeader;
 import com.xmq.producer.client.NettyClient;
+import com.xmq.util.MessageTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BrokerRegister {
     private static final Logger LOG = LoggerFactory.getLogger(BrokerRegister.class);
-
+    private final String metaServer = "";
     private  NettyClient client;
     private final ScheduledExecutorService heartbeatScheduler;
 
@@ -33,6 +36,12 @@ public class BrokerRegister {
 
     private void heartbeat() {
         LOG.info("send message");
-        client.sendMessage(null);
+        Datagram data = new Datagram();
+        RemotingHeader header = new RemotingHeader();
+        header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_BROKER.getType());
+        header.setMagicCode(MessageTypeEnum.NULL.getType());
+        header.setLength(0);
+        data.setHeader(header);
+        client.synMessage("127.0.0.1",data);
     }
 }

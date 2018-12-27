@@ -57,7 +57,7 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
             Datagram datagram = new Datagram();
             final RemotingHeader header = new RemotingHeader();
             header.setMagicCode(RemotingHeader.DEFAULT_MAGIC_CODE);
-            header.setRequestCode(MessageTypeEnum.SYN_MESSAGE.getType());
+            header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_CLIENT.getType());
             String messageStr = JSON.toJSONString(message);
             header.setLength(messageStr.length());
             ByteBuf buf = Unpooled.copiedBuffer(messageStr, Charset.forName("UTF-8"));//创建一个ByteBuf

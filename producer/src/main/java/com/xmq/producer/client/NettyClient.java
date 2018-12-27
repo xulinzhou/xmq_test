@@ -10,6 +10,7 @@ import com.xmq.resolver.ZKClient;
 import com.xmq.util.Constants;
 import com.xmq.util.IpUtil;
 import com.xmq.util.MessageTypeEnum;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -43,7 +44,7 @@ public class NettyClient {
         this.host = "127.0.0.1";
     }
 
-
+    private Bootstrap bootstrap;
     /**
      * 连接方法
      */
@@ -51,7 +52,7 @@ public class NettyClient {
         LOGGER.info("port:"+port);
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            io.netty.bootstrap.Bootstrap bootstrap = new io.netty.bootstrap.Bootstrap();
+            bootstrap = new  Bootstrap();
             bootstrap.group(group).channel(NioSocketChannel.class);
             bootstrap.option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.TCP_NODELAY, true)
@@ -99,8 +100,19 @@ public class NettyClient {
         connect();
     }
 
+    /**
+     * 发送消息
+     * @param address
+     * @param datagram
+     */
     public  void synMessage(String address,Datagram datagram){
-
+        try {
+            ChannelFuture f = bootstrap.connect(address, 7777).sync();
+            f.channel().writeAndFlush(datagram);
+            f.channel().closeFuture().sync();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

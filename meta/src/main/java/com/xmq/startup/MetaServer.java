@@ -1,8 +1,7 @@
 package com.xmq.startup;
 
 import com.xmq.netty.server.NettyServer;
-import com.xmq.processor.BrokerProcessor;
-import com.xmq.processor.RegisterProcessor;
+import com.xmq.processor.BrokerRegisterProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +18,9 @@ public class MetaServer {
 
       public void start(){
           log.info("start meta server");
-
+          BrokerRegisterProcessor process = new BrokerRegisterProcessor();
           final NettyServer metaNettyServer = new NettyServer("meta",7777);
-          metaNettyServer.registerProcessor((short)1,null,null);
+          metaNettyServer.registerProcessor((short)10,process,null);
           metaNettyServer.registerProcessor((short)1,null,null);
 
           metaNettyServer.start();
