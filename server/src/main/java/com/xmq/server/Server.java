@@ -26,8 +26,10 @@ public class Server {
     }
 
     private void register(){
-        String ip = IpUtil.getServerIp();
+        String ip = "127.0.0.1";
+
         BrokerRegister register =     new BrokerRegister(ip,7777);
         register.start();
+        //register.online();
     }
 }

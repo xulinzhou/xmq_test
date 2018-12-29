@@ -16,6 +16,7 @@ public class DecodeHandler extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf in, List<Object> list) throws Exception {
         if (in.readableBytes() < RemotingHeader.LENGTH_FIELD ) return;
+        System.out.println("2222222222222222222222222");
 
         int magicCode = in.getInt(in.readerIndex());
         if (DEFAULT_MAGIC_CODE != magicCode) {

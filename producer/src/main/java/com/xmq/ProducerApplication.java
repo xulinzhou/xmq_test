@@ -9,6 +9,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.annotation.Configuration;
+import qunar.tc.qmq.Message;
+import qunar.tc.qmq.consumer.annotation.EnableQmq;
+import qunar.tc.qmq.consumer.annotation.QmqConsumer;
 
 import javax.annotation.Resource;
 
@@ -22,6 +26,8 @@ import javax.annotation.Resource;
  */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+@Configuration
+@EnableQmq(appCode="test", metaServer="http://localhost:8080/meta/address")
 public class ProducerApplication implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProducerApplication.class);
 
@@ -35,4 +41,21 @@ public class ProducerApplication implements CommandLineRunner {
        BaseMessage message =new BaseMessage("11","test","group1");
         messageProducer.sendMessage(message);
     }
+/*
+    public static void main(String[] args) {
+        SpringApplication.run(ProducerApplication.class, args);
+    }
+    @Override
+    public void run(String... args) throws Exception {
+        System.in.read();
+    }
+
+    @QmqConsumer(subject = "test.subject", consumerGroup = "test", executor = "ProducerApplication")
+    public void onMessage(Message message){
+        System.out.println("==========================");
+        //process your message
+        String value = message.getStringProperty("key");
+        System.out.println("value");
+    }*/
+
 }

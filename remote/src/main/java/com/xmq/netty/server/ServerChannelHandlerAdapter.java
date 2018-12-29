@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutorService;
 @ChannelHandler.Sharable
 public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Datagram> {
 
-    private final Map<Short, RequestExecutor> commands = Maps.newHashMap();
+    private final Map<Integer, RequestExecutor> commands = Maps.newHashMap();
 
     private QueueHandler queue;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandlerAdapter.class);
@@ -47,7 +47,7 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
         this.queue = queue;
     }
 
-    public void registerProcessor(short requestCode, RequestProcessor processor, ExecutorService executor) {
+    public void registerProcessor(Integer requestCode, RequestProcessor processor, ExecutorService executor) {
         this.commands.put(requestCode, new RequestExecutor(requestCode, processor, executor));
     }
 
@@ -72,7 +72,7 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
 
         ByteBuf bf = msg.getBody();
 
-        LOGGER.info("SimpleServerHandler.channelRead"+convertByteBufToString(bf));
+        LOGGER.info("simpleserverhandler channelread"+convertByteBufToString(bf));
         LOGGER.info("msgs"+JSONUtils.toJSONString(msg));
     }
 

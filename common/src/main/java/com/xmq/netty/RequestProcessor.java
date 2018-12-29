@@ -15,5 +15,5 @@ public interface RequestProcessor {
 
     CompletableFuture<Datagram> processRequest(ChannelHandlerContext ctx, Datagram request);
 
-    boolean rejectRequest();
+
 }

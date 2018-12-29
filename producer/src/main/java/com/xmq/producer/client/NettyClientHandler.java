@@ -50,7 +50,7 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
     }
     // 连接成功后，向server发送消息
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        for (int i = 0; i < 100; i++) {
+        /*for (int i = 0; i < 100; i++) {
             message.setMessageId(String.valueOf(i));
             LOGGER.info("====>send message "+JSON.toJSONString(message));
 
@@ -73,6 +73,6 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
                     }
                 }
             }));
-        }
+        }*/
     }
 }

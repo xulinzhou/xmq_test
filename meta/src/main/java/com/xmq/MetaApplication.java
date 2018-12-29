@@ -20,7 +20,6 @@ import javax.annotation.Resource;
  * @Version: 1.0
  */
 @SpringBootApplication
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class MetaApplication implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetaApplication.class);
 

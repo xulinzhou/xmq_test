@@ -1,5 +1,6 @@
 package com.xmq.processor;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.xmq.netty.Datagram;
 import com.xmq.netty.RequestProcessor;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,12 +20,9 @@ import java.util.concurrent.CompletableFuture;
 public class ClientRegisterProcessor implements RequestProcessor {
     @Override
     public CompletableFuture<Datagram> processRequest(ChannelHandlerContext ctx, Datagram request) {
-
+        log.info("client register data"+ JSONUtils.toJSONString(request));
         return null;
     }
 
-    @Override
-    public boolean rejectRequest() {
-        return false;
-    }
+
 }

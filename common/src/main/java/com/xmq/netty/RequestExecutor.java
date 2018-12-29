@@ -23,7 +23,7 @@ public class RequestExecutor {
     private final RequestProcessor processor;
     private final ExecutorService executor;
 
-    public RequestExecutor(final short requestCode, final RequestProcessor processor, final ExecutorService executor) {
+    public RequestExecutor(final Integer requestCode, final RequestProcessor processor, final ExecutorService executor) {
         this.processor = processor;
         this.executor = executor;
     }

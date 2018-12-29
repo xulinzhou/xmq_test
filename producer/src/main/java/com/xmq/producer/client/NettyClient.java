@@ -43,8 +43,7 @@ public class NettyClient {
     public NettyClient() {
         this.host = "127.0.0.1";
     }
-
-    private Bootstrap bootstrap;
+    private io.netty.bootstrap.Bootstrap bootstrap;
     /**
      * 连接方法
      */
@@ -52,7 +51,7 @@ public class NettyClient {
         LOGGER.info("port:"+port);
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            bootstrap = new  Bootstrap();
+            bootstrap = new  io.netty.bootstrap.Bootstrap();
             bootstrap.group(group).channel(NioSocketChannel.class);
             bootstrap.option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.TCP_NODELAY, true)
@@ -65,33 +64,14 @@ public class NettyClient {
                     ch.pipeline().addLast(new NettyClientHandler(message));
                 }
             });
-
-           /* ZKClient client =    new ZKClient(IpUtil.getServerIp()+":2181");
-            client.addPersistentNode(Constants.MQ_ZK_ROOT);
-            client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject());
-            client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName());
-            client.addPersistentNode(Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName()+"/broker");
-            String path  = Constants.MQ_ZK_ROOT+"/"+message.getSubject()+"/"+message.getGroupName()+"/broker";
-
-            List<String> paths = client.getChildren(path);
-            if(null == paths  && paths.size() == 0 ){
-                LOGGER.error("没有可以提供服务的broker");
-            }else{
-                LOGGER.info("server list"+JSON.toJSONString(paths));
-                LoadBalance balance  = new RandomLoadBalance();
-                String pa =  balance.select(paths);
-                LOGGER.info("pa"+JSON.toJSONString(pa));
-                ChannelFuture f = bootstrap.connect(pa, port).sync();
-                f.channel().closeFuture().sync();
-
-
-            }*/
-
+           /* ChannelFuture f = bootstrap.connect(host, port).sync();
+            f.channel().closeFuture().sync();
+            f.channel().writeAndFlush(null);*/
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        } /*finally {
             group.shutdownGracefully();
-        }
+        }*/
     }
 
 
@@ -100,6 +80,32 @@ public class NettyClient {
         connect();
     }
 
+
+   /* public  void synMessage(String address,Datagram datagram){
+        try {
+            port = 7777;
+            LOGGER.info("port:"+port);
+
+            ChannelFuture f = bootstrap.connect(address, port).sync();
+            *//*f.channel().writeAndFlush(datagram).addListener((new ChannelFutureListener() {
+                public void operationComplete(ChannelFuture future) {
+                    if (future.isSuccess()) {
+                        System.out.println("send message  success");
+                        return;
+                    }else{
+                        LOGGER.error("send  failed.", future.cause());
+                    }
+                }
+            }));
+            f.channel().closeFuture().sync();*//*
+            f.channel().writeAndFlush(null);
+            //f.channel().closeFuture().sync();
+        }catch (Exception e){
+            e.printStackTrace();
+
+            LOGGER.error("eeeeeeeeeeeeeeeee");
+        }
+    }*/
     /**
      * 发送消息
      * @param address
@@ -107,12 +113,22 @@ public class NettyClient {
      */
     public  void synMessage(String address,Datagram datagram){
         try {
+            System.out.println("send message  success"+datagram);
             ChannelFuture f = bootstrap.connect(address, 7777).sync();
-            f.channel().writeAndFlush(datagram);
+            f.channel().writeAndFlush(datagram).addListener((new ChannelFutureListener() {
+                public void operationComplete(ChannelFuture future) {
+                    if (future.isSuccess()) {
+                        System.out.println("send message  success");
+                        return;
+                    }else{
+                        LOGGER.error("send  failed.", future.cause());
+                    }
+                }
+            }));;
             f.channel().closeFuture().sync();
         }catch (Exception e){
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
-
 }

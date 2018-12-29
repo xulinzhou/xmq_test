@@ -98,7 +98,7 @@ public class NettyServer {
         }
         log.info("listen on port {}", port);
     }
-    public void registerProcessor(final short requestCode,
+    public void registerProcessor(final int requestCode,
                                   final RequestProcessor processor,
                                   final ExecutorService executorService) {
         serverHandler.registerProcessor(requestCode, processor, executorService);
