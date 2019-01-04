@@ -13,6 +13,7 @@ import com.xmq.util.MessageTypeEnum;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import org.springframework.util.StringUtils;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @ProjectName: xmq
@@ -30,9 +33,11 @@ import java.util.List;
  * @CreateDate: 2018/9/16 15:27
  * @Version: 1.0
  */
+@Slf4j
 public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientHandler.class);
 
+
+    private ConcurrentMap<Channel,ResponseFuture> channelMap = new ConcurrentHashMap(10);
     private BaseMessage message;
 
     public   NettyClientHandler(BaseMessage message){
@@ -41,15 +46,29 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Datagram datagram) throws Exception {
-        LOGGER.info("====>send message "+JSON.toJSONString(datagram));
+        log.info("====>send message "+JSON.toJSONString(datagram));
+        ResponseFuture future =  channelMap.get(ctx.channel());
+        future.executeCallBack();
+        //
     }
-
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        log.info("active");
+    }
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
         ctx.close();
     }
+
+
+    ResponseFuture process(ResponseFuture.Callback  callBack, Channel channel , long timeout){
+         ResponseFuture future = new ResponseFuture(timeout,callBack);
+         channelMap.putIfAbsent(channel,future);
+         return null;
+    }
     // 连接成功后，向server发送消息
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("active1111111111");
         /*for (int i = 0; i < 100; i++) {
             message.setMessageId(String.valueOf(i));
             LOGGER.info("====>send message "+JSON.toJSONString(message));

@@ -65,7 +65,7 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
      * 客户端连接到服务端后进行
      */
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("客户端连接");
+        LOGGER.info("客户端连接"+ctx.channel());
     }
 
     public void channelRead(ChannelHandlerContext ctx, Datagram msg) throws  Exception {
@@ -94,7 +94,7 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
         command.setTime(System.currentTimeMillis());
         processMessageReceived(ctx, command);
 
-        ctx.writeAndFlush(command);
+        //ctx.writeAndFlush(command);
     }
     private void processMessageReceived(ChannelHandlerContext ctx, Datagram cmd) {
         if (cmd != null) {

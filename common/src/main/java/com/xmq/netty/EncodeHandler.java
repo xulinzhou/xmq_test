@@ -16,7 +16,6 @@ public class EncodeHandler extends MessageToByteEncoder<Datagram> {
         out.writeInt(header.getRequestCode());
         out.writeInt(header.getLength());
         out.writeBytes(msg.getBody());
-        System.out.println("2222222222222222222222222");
     }
 
 }

@@ -90,7 +90,7 @@ public class NettyServer {
           /*  // 绑定端口,开始接收进来的连接
             ChannelFuture channelFuture = bootstrap.bind(port).sync();*/
             // 等待服务器socket关闭
-            channel.closeFuture().sync();
+            //channel.closeFuture().sync();
 
         } catch (Exception e) {
             log.error("server start fail", e);

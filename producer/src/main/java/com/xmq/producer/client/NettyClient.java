@@ -1,6 +1,7 @@
 package com.xmq.producer.client;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.util.concurrent.AbstractFuture;
 import com.xmq.loadbalance.LoadBalance;
 import com.xmq.loadbalance.RandomLoadBalance;
 import com.xmq.message.BaseMessage;
@@ -19,17 +20,19 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import qunar.tc.qmq.netty.client.ResponseFuture;
 
 import java.nio.charset.Charset;
 import java.util.List;
 
 @Component
+@Slf4j
 public class NettyClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
     private String host;
     @Value("${netty.port}")
     private int port;
@@ -44,11 +47,17 @@ public class NettyClient {
         this.host = "127.0.0.1";
     }
     private io.netty.bootstrap.Bootstrap bootstrap;
+
+    private ChannelFuture f;
+
+
+    private NettyClientHandler clientHandler;
+
     /**
      * 连接方法
      */
     public void connect() {
-        LOGGER.info("port:"+port);
+        log.info("port:"+port);
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             bootstrap = new  io.netty.bootstrap.Bootstrap();
@@ -64,14 +73,12 @@ public class NettyClient {
                     ch.pipeline().addLast(new NettyClientHandler(message));
                 }
             });
-           /* ChannelFuture f = bootstrap.connect(host, port).sync();
-            f.channel().closeFuture().sync();
-            f.channel().writeAndFlush(null);*/
+
+            f = bootstrap.connect("127.0.0.1", 7777);
+
         } catch (Exception e) {
             e.printStackTrace();
-        } /*finally {
-            group.shutdownGracefully();
-        }*/
+        }
     }
 
 
@@ -111,24 +118,36 @@ public class NettyClient {
      * @param address
      * @param datagram
      */
-    public  void synMessage(String address,Datagram datagram){
+    public  void synMessage(String address,Datagram datagram,long timeout){
         try {
-            System.out.println("send message  success"+datagram);
-            ChannelFuture f = bootstrap.connect(address, 7777).sync();
+            //异步方法，放到多线程里面处理，处理完后
+            ResultFuture future = new ResultFuture();
+           final  com.xmq.producer.client.ResponseFuture responseFuture =  clientHandler.process(future,f.channel(),timeout);
+            log.info("send message  chanel================"+f);
             f.channel().writeAndFlush(datagram).addListener((new ChannelFutureListener() {
                 public void operationComplete(ChannelFuture future) {
                     if (future.isSuccess()) {
-                        System.out.println("send message  success");
+                        responseFuture.setOk(true);
+                        log.info("send message  success");
                         return;
                     }else{
-                        LOGGER.error("send  failed.", future.cause());
+                        log.error("send  failed.", future.cause());
                     }
                 }
             }));;
-            f.channel().closeFuture().sync();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+
+
+    public class ResultFuture extends AbstractFuture<Datagram> implements ResponseFuture.Callback {
+
+        @Override
+        public void processResponse(ResponseFuture responseFuture) {
+            System.out.println("1111111111111111111");
         }
     }
 }

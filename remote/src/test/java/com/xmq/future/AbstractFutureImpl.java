@@ -37,6 +37,7 @@ public class AbstractFutureImpl<T> extends AbstractFuture<T> {
                 }
             }
         }, executors);
+        System.out.println("3333333333333333333");
         TimeUnit.SECONDS.sleep(5);
         future.set("hh");
         System.out.println("set完值");

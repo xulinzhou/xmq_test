@@ -15,10 +15,10 @@ public class DecodeHandler extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf in, List<Object> list) throws Exception {
-        if (in.readableBytes() < RemotingHeader.LENGTH_FIELD ) return;
-        System.out.println("2222222222222222222222222");
-
-        int magicCode = in.getInt(in.readerIndex());
+        int redinx= in.readableBytes();
+        if (redinx < RemotingHeader.LENGTH_FIELD ) return;
+        int ind = in.readerIndex();
+        int magicCode = in.getInt(ind);
         if (DEFAULT_MAGIC_CODE != magicCode) {
             throw new IOException("Illegal Data, MagicCode=" + Integer.toHexString(magicCode));
         }

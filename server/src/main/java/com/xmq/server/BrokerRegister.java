@@ -6,6 +6,7 @@ import com.xmq.producer.client.NettyClient;
 import com.xmq.util.MessageTypeEnum;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,46 +23,48 @@ import java.util.concurrent.TimeUnit;
  * @CreateDate: 2018/12/25 14:45
  * @Version: 1.0
  */
+@Slf4j
 public class BrokerRegister {
-    private static final Logger LOG = LoggerFactory.getLogger(BrokerRegister.class);
+    private long timeout = 1000;
     private final String metaServer = "";
     private  NettyClient client;
-    private final ScheduledExecutorService heartbeatExecute = Executors.newSingleThreadScheduledExecutor();;
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
     public BrokerRegister(String ip,int port) {
         client = new NettyClient();
         client.connect();
-
-
     }
     public void  start(){
-        heartbeatExecute.scheduleAtFixedRate(()->heartbeat() ,0, 1, TimeUnit.SECONDS);
-        heartbeat();
+        executor.scheduleAtFixedRate(this::heartbeat ,1, 2, TimeUnit.SECONDS);
     }
+
+    private void heartbeat() {
+        log.info("send message heatbeat ");
+        Datagram data = new Datagram();
+        RemotingHeader header = new RemotingHeader();
+        header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_BROKER.getType());
+        ByteBuf buf = Unpooled.copiedBuffer("heartbeat", Charset.forName("UTF-8"));
+
+        header.setLength("heartbeat".length());
+        data.setHeader(header);
+        data.setBody(buf);
+        log.info("send message"+data);
+        client.synMessage("127.0.0.1",data,timeout);
+    }
+
 
     public void online(){
         onlineMessage();
     }
-    private void heartbeat() {
-        LOG.info("send message");
-        Datagram data = new Datagram();
-        RemotingHeader header = new RemotingHeader();
-        header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_BROKER.getType());
-        header.setLength(0);
-        data.setHeader(header);
-        ByteBuf buf = Unpooled.copiedBuffer("heartbeat", Charset.forName("UTF-8"));
-        data.setBody(buf);
-        client.synMessage("127.0.0.1",data);
-    }
 
 
     private void onlineMessage() {
-        LOG.info("online message");
+        log.info("online message");
         Datagram data = new Datagram();
         RemotingHeader header = new RemotingHeader();
         header.setRequestCode(MessageTypeEnum.BROKER_ONLINE.getType());
         header.setLength(0);
         data.setHeader(header);
-        client.synMessage("127.0.0.1",data);
+        client.synMessage("127.0.0.1",data,timeout);
     }
 }

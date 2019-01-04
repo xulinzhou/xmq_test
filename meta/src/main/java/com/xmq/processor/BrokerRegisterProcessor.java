@@ -31,13 +31,13 @@ public class BrokerRegisterProcessor implements RequestProcessor {
     public CompletableFuture<Datagram> processRequest(ChannelHandlerContext ctx, Datagram request) {
         //broker 入库
         if(request.getHeader().getRequestCode() == MessageTypeEnum.SYN_MESSAGE_BROKER.getType()){
-             handlerHeat(request);
+            return CompletableFuture.completedFuture(handlerHeat(request));
         }else if(request.getHeader().getRequestCode() == MessageTypeEnum.BROKER_ONLINE.getType()){
             handOnline(request);
         }
         return null;
     }
-    private void handlerHeat(Datagram request){
+    private Datagram handlerHeat(Datagram request){
          //心跳数据入库
          log.info("heartbeat from broker");
          final Timer timer = new HashedWheelTimer(new NamedThreadFactory("heartbeat"));
@@ -46,6 +46,7 @@ public class BrokerRegisterProcessor implements RequestProcessor {
                 System.out.println("task 3 run only once ! ");
             }
         }, 15, TimeUnit.SECONDS);
+        return new Datagram();
     }
 
     private void handOnline(Datagram request){

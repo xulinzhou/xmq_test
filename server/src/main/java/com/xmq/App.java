@@ -1,14 +1,14 @@
 package com.xmq;
 
 import com.google.common.base.Preconditions;
-import com.xmq.server.Server;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import qunar.tc.qmq.Message;
+import com.xmq.server.BrokerServer;
 import qunar.tc.qmq.consumer.MessageConsumerProvider;
-import qunar.tc.qmq.consumer.annotation.QmqConsumer;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Hello world!
@@ -23,8 +23,8 @@ public class App
 
         System.in.read();*/
 
-     /* Executor executor = null;
-      Preconditions.checkNotNull(executor, "消费逻辑将在该线程池里执行");
+     //Executor executor = null;
+    //  Preconditions.checkNotNull(executor, "消费逻辑将在该线程池里执行");
 
         //推荐一个应用里只创建一个实例
         MessageConsumerProvider consumer = new MessageConsumerProvider();
@@ -38,12 +38,12 @@ public class App
         }, new ThreadPoolExecutor(2,2,  60L, TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>()));
 
-        System.in.read();*/
-     Server abc = new Server();
+        System.in.read();
+   /*  BrokerServer abc = new BrokerServer();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("=============");
         }));
-        System.out.println("bac");
+        System.out.println("bac");*/
 
 
     }

@@ -37,10 +37,24 @@ public class RequestExecutor {
         try {
             final CompletableFuture<Datagram> future = processor.processRequest(ctx, cmd);
 
+
+             RemotingHeader header1 = new RemotingHeader();
+            header1.setMagicCode(header1.DEFAULT_MAGIC_CODE);
+            header1.setLength(0);
+            header1.setRequestCode(100);
+            Datagram datagram1 = new Datagram();
+            datagram1.setHeader(header1);
+            ctx.writeAndFlush(datagram1);
+
+
             if (future != null) {
                 future.exceptionally(ex -> errorResp(MessageTypeEnum.SYN_ERROR.getType(), cmd))
                         .thenAccept((datagram -> {
                             final RemotingHeader header = datagram.getHeader();
+                            header.setMagicCode(header.DEFAULT_MAGIC_CODE);
+                            header.setLength(0);
+                            header.setRequestCode(100);
+                            datagram.setHeader(header);
                             ctx.writeAndFlush(datagram);
                         }));
             }

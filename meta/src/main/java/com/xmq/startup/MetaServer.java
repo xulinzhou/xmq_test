@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * @ProjectName: xmq
  * @Package: com.xmq.startup
@@ -21,7 +23,7 @@ public class MetaServer {
     public static void main(String[] args) {
         new MetaServer().start();
     }
-      public void start(){
+      public void start() {
           log.info("start meta server");
 
 
@@ -31,7 +33,11 @@ public class MetaServer {
           metaNettyServer.registerProcessor(1,null,null);
 
           metaNettyServer.start();
-
+          try {
+              System.in.read();
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
 
       }
 }
