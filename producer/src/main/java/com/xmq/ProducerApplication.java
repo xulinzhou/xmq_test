@@ -10,10 +10,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import qunar.tc.qmq.Message;
-import qunar.tc.qmq.consumer.annotation.EnableQmq;
-import qunar.tc.qmq.consumer.annotation.QmqConsumer;
-
 import javax.annotation.Resource;
 
 /**
@@ -27,7 +23,6 @@ import javax.annotation.Resource;
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 @Configuration
-@EnableQmq(appCode="test", metaServer="http://localhost:8080/meta/address")
 public class ProducerApplication implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProducerApplication.class);
 

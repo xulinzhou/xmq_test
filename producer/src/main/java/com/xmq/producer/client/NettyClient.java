@@ -1,34 +1,17 @@
 package com.xmq.producer.client;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.AbstractFuture;
-import com.xmq.loadbalance.LoadBalance;
-import com.xmq.loadbalance.RandomLoadBalance;
 import com.xmq.message.BaseMessage;
-import com.xmq.netty.*;
-
-import com.xmq.resolver.ZKClient;
-import com.xmq.util.Constants;
-import com.xmq.util.IpUtil;
-import com.xmq.util.MessageTypeEnum;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.xmq.netty.Datagram;
+import com.xmq.netty.DecodeHandler;
+import com.xmq.netty.EncodeHandler;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.LengthFieldPrepender;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import qunar.tc.qmq.netty.client.ResponseFuture;
-
-import java.nio.charset.Charset;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -120,9 +103,10 @@ public class NettyClient {
      */
     public  void synMessage(String address,Datagram datagram,long timeout){
         try {
-            //异步方法，放到多线程里面处理，处理完后
-            ResultFuture future = new ResultFuture();
-           final  com.xmq.producer.client.ResponseFuture responseFuture =  clientHandler.process(future,f.channel(),timeout);
+           final ResultFuture future = new ResultFuture();
+
+           final  com.xmq.producer.client.ResponseFuture responseFuture
+                   =  clientHandler.process(future,f.channel(),timeout);
             log.info("send message  chanel================"+f);
             f.channel().writeAndFlush(datagram).addListener((new ChannelFutureListener() {
                 public void operationComplete(ChannelFuture future) {
@@ -143,11 +127,16 @@ public class NettyClient {
 
 
 
-    public class ResultFuture extends AbstractFuture<Datagram> implements ResponseFuture.Callback {
+    public class ResultFuture extends AbstractFuture<Datagram> implements com.xmq.producer.client.ResponseFuture.Callback {
 
-        @Override
+       /* @Override
         public void processResponse(ResponseFuture responseFuture) {
             System.out.println("1111111111111111111");
+        }*/
+
+        @Override
+        public void processResponse(com.xmq.producer.client.ResponseFuture responseFuture) {
+            System.out.println("tests");
         }
     }
 }

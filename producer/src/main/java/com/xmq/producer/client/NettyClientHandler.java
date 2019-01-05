@@ -2,26 +2,12 @@ package com.xmq.producer.client;
 
 import com.alibaba.fastjson.JSON;
 import com.xmq.message.BaseMessage;
-import com.xmq.message.UserInfo;
 import com.xmq.netty.Datagram;
-import com.xmq.netty.RemotingHeader;
-import com.xmq.resolver.ZKClient;
-import com.xmq.resolver.ZkResolver;
-import com.xmq.util.Constants;
-import com.xmq.util.IpUtil;
-import com.xmq.util.MessageTypeEnum;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.curator.framework.CuratorFramework;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -61,10 +47,10 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
     }
 
 
-    ResponseFuture process(ResponseFuture.Callback  callBack, Channel channel , long timeout){
+    public ResponseFuture process(ResponseFuture.Callback  callBack, Channel channel , long timeout){
          ResponseFuture future = new ResponseFuture(timeout,callBack);
          channelMap.putIfAbsent(channel,future);
-         return null;
+         return future;
     }
     // 连接成功后，向server发送消息
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

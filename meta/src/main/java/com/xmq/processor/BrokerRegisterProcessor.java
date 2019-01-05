@@ -4,14 +4,14 @@ import com.alibaba.druid.support.json.JSONUtils;
 import com.xmq.netty.Datagram;
 import com.xmq.netty.RequestProcessor;
 import com.xmq.util.MessageTypeEnum;
+import com.xmq.util.MyThreadFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import lombok.extern.slf4j.Slf4j;
-import qunar.tc.qmq.concurrent.NamedThreadFactory;
-import qunar.tc.qmq.meta.BrokerState;
+
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -40,8 +40,8 @@ public class BrokerRegisterProcessor implements RequestProcessor {
     private Datagram handlerHeat(Datagram request){
          //心跳数据入库
          log.info("heartbeat from broker");
-         final Timer timer = new HashedWheelTimer(new NamedThreadFactory("heartbeat"));
-        timer.newTimeout(new TimerTask() {
+         final Timer timer = new HashedWheelTimer(new MyThreadFactory("heartbeat"));
+         timer.newTimeout(new TimerTask() {
             public void run(Timeout timeout) throws Exception {
                 System.out.println("task 3 run only once ! ");
             }
