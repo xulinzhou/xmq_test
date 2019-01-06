@@ -5,7 +5,6 @@ import com.xmq.util.IpUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelHandlerInvoker;
 import io.netty.util.concurrent.EventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.msgpack.MessagePack;
@@ -38,14 +37,14 @@ public class ConsumerMessageHandler extends ChannelHandlerAdapter {
         ctx.close();
     }
 
-    @Override
+   /* @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
     }
 
-    /**
+    *//**
      * 客户端连接到服务端后进行
-     */
+     *//*
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
@@ -59,6 +58,6 @@ public class ConsumerMessageHandler extends ChannelHandlerAdapter {
         BaseMessage baseMessage = MessagePack.unpack(MessagePack.pack(msg_new), BaseMessage.class);
 
         listener.onMessage(baseMessage);
-    }
+    }*/
 
 }

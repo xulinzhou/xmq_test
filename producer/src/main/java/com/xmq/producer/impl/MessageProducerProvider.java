@@ -19,10 +19,10 @@ import javax.annotation.Resource;
  */
 @Component
 public class MessageProducerProvider implements MessageProducer {
-    @Resource
-    private NettyClient client;
+
 
    public  void sendMessage(BaseMessage message){
+       NettyClient client = new NettyClient();
        client.sendMessage(message);
     }
 }

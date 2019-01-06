@@ -3,6 +3,7 @@ package com.xmq.producer.client;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -18,18 +19,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ResponseFuture {
 
 
-    public boolean ok;
+    public volatile boolean ok;
 
-    private long timeout;
+    private volatile long timeout;
 
-    private Callback callBack;
+    private final Callback callBack;
 
+    private volatile long begintime;
+
+    private volatile long requestEndTime;
+
+    private volatile boolean  istimeout;
     private final AtomicBoolean executeCallbackOnce = new AtomicBoolean(false);
 
 
     public ResponseFuture(long timeout, Callback callBack) {
         this.timeout = timeout;
         this.callBack = callBack;
+        this.begintime = new Date().getTime();
     }
     public  void executeCallBack(){
         if(callBack == null) return ;
@@ -37,8 +44,22 @@ public class ResponseFuture {
              callBack.processResponse(this);
          }
     }
+
+
+    public void completeByTimeoutClean() {
+        this.istimeout = true;
+        this.requestEndTime = System.currentTimeMillis();
+    }
+
     public interface Callback {
         void processResponse(ResponseFuture responseFuture);
     }
 
+    public long getBegintime() {
+        return begintime;
+    }
+
+    public void setBegintime(long begintime) {
+        this.begintime = begintime;
+    }
 }

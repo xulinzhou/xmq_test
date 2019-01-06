@@ -2,7 +2,6 @@ package com.xmq;
 
 import com.google.common.base.Preconditions;
 import com.xmq.server.BrokerServer;
-import qunar.tc.qmq.consumer.MessageConsumerProvider;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -27,7 +26,7 @@ public class App
     //  Preconditions.checkNotNull(executor, "消费逻辑将在该线程池里执行");
 
         //推荐一个应用里只创建一个实例
-        MessageConsumerProvider consumer = new MessageConsumerProvider();
+       /* MessageConsumerProvider consumer = new MessageConsumerProvider();
         consumer.setAppCode("test");
         consumer.setMetaServer("http://127.0.0.1:8080/meta/address");
         consumer.init();
@@ -38,7 +37,7 @@ public class App
         }, new ThreadPoolExecutor(2,2,  60L, TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>()));
 
-        System.in.read();
+        System.in.read();*/
    /*  BrokerServer abc = new BrokerServer();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("=============");

@@ -5,10 +5,12 @@ import com.google.common.collect.Maps;
 import com.xmq.handler.QueueHandler;
 import com.xmq.message.BaseMessage;
 import com.xmq.netty.Datagram;
+import com.xmq.netty.RemotingHeader;
 import com.xmq.netty.RequestExecutor;
 import com.xmq.netty.RequestProcessor;
 import com.xmq.util.IpUtil;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -91,8 +94,23 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
     protected void channelRead0(ChannelHandlerContext ctx, Datagram command) throws Exception {
         ByteBuf bf = command.getBody();
         LOGGER.info("SimpleServerHandler.channelRead"+convertByteBufToString(bf));
+
+        RemotingHeader header1 = new RemotingHeader();
+        header1.setMagicCode(header1.DEFAULT_MAGIC_CODE);
+        ByteBuf buf = Unpooled.copiedBuffer("heartbeat", Charset.forName("UTF-8"));
+        header1.setLength("heartbeat".length());
+        header1.setRequestCode(100);
+        Datagram datagram1 = new Datagram();
+        datagram1.setHeader(header1);
+        datagram1.setBody(buf);
+        ctx.writeAndFlush(datagram1);
+        LOGGER.info("error"+ctx.channel());
+
         command.setTime(System.currentTimeMillis());
         processMessageReceived(ctx, command);
+
+
+
 
         //ctx.writeAndFlush(command);
     }

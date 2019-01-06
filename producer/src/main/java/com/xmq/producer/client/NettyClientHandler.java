@@ -1,15 +1,18 @@
 package com.xmq.producer.client;
 
 import com.alibaba.fastjson.JSON;
+import com.xmq.exception.ClientSendException;
+import com.xmq.exception.TimeOutException;
 import com.xmq.message.BaseMessage;
 import com.xmq.netty.Datagram;
+import com.xmq.util.MyThreadFactory;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 /**
  * @ProjectName: xmq
@@ -20,20 +23,30 @@ import java.util.concurrent.ConcurrentMap;
  * @Version: 1.0
  */
 @Slf4j
+@ChannelHandler.Sharable
 public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
 
 
     private ConcurrentMap<Channel,ResponseFuture> channelMap = new ConcurrentHashMap(10);
     private BaseMessage message;
-
+    private ScheduledExecutorService timer ;
+    public   NettyClientHandler(){
+        timer  =  Executors.newSingleThreadScheduledExecutor(new MyThreadFactory("client-timer"));
+        timer.scheduleAtFixedRate(()->time(),
+        3000,
+        1000,
+        TimeUnit.MILLISECONDS);
+    }
     public   NettyClientHandler(BaseMessage message){
         this.message =message;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Datagram datagram) throws Exception {
-        log.info("====>send message "+JSON.toJSONString(datagram));
+        log.info("====>receive message "+JSON.toJSONString(datagram));
         ResponseFuture future =  channelMap.get(ctx.channel());
+        log.info("====>future========="+future);
+        if(null==future) return ;
         future.executeCallBack();
         //
     }
@@ -47,9 +60,12 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
     }
 
 
-    public ResponseFuture process(ResponseFuture.Callback  callBack, Channel channel , long timeout){
+    public ResponseFuture process(ResponseFuture.Callback  callBack, Channel channel , long timeout) throws  ClientSendException{
          ResponseFuture future = new ResponseFuture(timeout,callBack);
          channelMap.putIfAbsent(channel,future);
+         //channelMap.putIfAbsent(channel,future)!=null){
+           //  throw new ClientSendException("发送消息异常");
+         //};
          return future;
     }
     // 连接成功后，向server发送消息
@@ -80,4 +96,21 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
             }));
         }*/
     }
+
+
+    public void time(){
+
+        channelMap.forEach((k,v)->{
+                ResponseFuture future = v;
+                if(isTimeout(future)){
+                    future.completeByTimeoutClean();
+                }
+                log.info("channel : " + k + " value : " + v);
+              });
+    }
+
+    private boolean isTimeout(ResponseFuture future) {
+        return future.getTimeout() >= 0 && (future.getBegintime() + future.getTimeout()) <= System.currentTimeMillis();
+    }
+
 }

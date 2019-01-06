@@ -35,7 +35,7 @@ public class BrokerRegister {
         client.connect();
     }
     public void  start(){
-        executor.scheduleAtFixedRate(this::heartbeat ,1, 2, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this::heartbeat ,1, 4, TimeUnit.SECONDS);
     }
 
     private void heartbeat() {

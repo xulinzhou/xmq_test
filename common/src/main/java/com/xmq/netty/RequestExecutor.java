@@ -38,7 +38,7 @@ public class RequestExecutor {
             final CompletableFuture<Datagram> future = processor.processRequest(ctx, cmd);
 
 
-             RemotingHeader header1 = new RemotingHeader();
+            RemotingHeader header1 = new RemotingHeader();
             header1.setMagicCode(header1.DEFAULT_MAGIC_CODE);
             header1.setLength(0);
             header1.setRequestCode(100);
