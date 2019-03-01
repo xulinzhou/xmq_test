@@ -1,5 +1,8 @@
 package com.xmq.server;
 
+import com.xmq.netty.server.NettyServer;
+import com.xmq.processor.BrokerRegisterProcessor;
+import com.xmq.util.MessageTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,15 +22,30 @@ public class BrokerServer {
 
         LOG.info("broker init started");
         new BrokerServer().register();
-        /*NettyServer nettyServer = new NettyServer("",8888);
-        nettyServer.start();*/
+        new BrokerServer().server();
+        //NettyServer nettyServer = new NettyServer("",8888);
+        //nettyServer.start();
     }
 
     private void register(){
         String ip = "127.0.0.1";
 
         BrokerRegister register =     new BrokerRegister(ip,7777);
+
         register.start();
         //register.online();
+    }
+
+    private void server(){
+        BrokerRegisterProcessor process = new BrokerRegisterProcessor();
+        NettyServer server = new NettyServer("server",12345);
+        server.registerProcessor(MessageTypeEnum.SYN_MESSAGE_BROKER.getType(),process,null);
+        server.registerProcessor(1,null,null);
+        server.registerProcessor(MessageTypeEnum.SYN_DATA.getType(),process,null);
+        server.registerProcessor(MessageTypeEnum.CONSUMER_DATA.getType(),process,null);
+        server.registerProcessor(MessageTypeEnum.CONSUMER_DATA_INFO.getType(),process,null);
+
+        server.start();
+
     }
 }

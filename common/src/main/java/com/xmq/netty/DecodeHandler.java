@@ -19,6 +19,7 @@ public class DecodeHandler extends ByteToMessageDecoder {
         if (redinx < RemotingHeader.LENGTH_FIELD ) return;
         int ind = in.readerIndex();
         int magicCode = in.getInt(ind);
+        System.out.println("Integer.toHexString(magicCode)"+Integer.toHexString(magicCode));
         if (DEFAULT_MAGIC_CODE != magicCode) {
             throw new IOException("Illegal Data, MagicCode=" + Integer.toHexString(magicCode));
         }
@@ -37,8 +38,12 @@ public class DecodeHandler extends ByteToMessageDecoder {
         remotingHeader.setRequestCode(code);
         remotingHeader.setLength(bodyLength);
         Datagram remotingCommand = new Datagram();
-        ByteBuf bodyData = in.readSlice(bodyLength);
-        bodyData.retain();
+        //ByteBuf bodyData = in.readSlice(bodyLength);
+        //bodyData.retain();
+        //remotingCommand.setBody(bodyData);
+
+        ByteBuf bodyData = Unpooled.buffer(bodyLength, bodyLength);
+        in.readBytes(bodyData, bodyLength);
         remotingCommand.setBody(bodyData);
 
         remotingCommand.setHeader(remotingHeader);

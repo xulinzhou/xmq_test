@@ -37,8 +37,14 @@ public class FileHandler extends AbstractHandler {
             e.printStackTrace();
         }
     }
-    public FileHandler(Config config) throws Exception{
-        this.config = config;
-        file  = new FileStore(config);
+    public FileHandler(Config config) {
+        try{
+            this.config = config;
+            file  = new FileStore(config);
+        }catch (Exception e){
+
+        }
+
+
     }
 }

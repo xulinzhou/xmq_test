@@ -1,20 +1,25 @@
 package com.xmq.netty.server;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
+import com.mysql.cj.x.json.JsonArray;
 import com.xmq.handler.QueueHandler;
 import com.xmq.message.BaseMessage;
 import com.xmq.netty.Datagram;
 import com.xmq.netty.RemotingHeader;
 import com.xmq.netty.RequestExecutor;
 import com.xmq.netty.RequestProcessor;
+import com.xmq.util.BufferCovert;
 import com.xmq.util.IpUtil;
+import com.xmq.util.MessageTypeEnum;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 import org.slf4j.Logger;
@@ -36,6 +41,7 @@ import java.util.concurrent.ExecutorService;
  */
 @Component
 @ChannelHandler.Sharable
+@Slf4j
 public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Datagram> {
 
     private final Map<Integer, RequestExecutor> commands = Maps.newHashMap();
@@ -75,27 +81,18 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
 
         ByteBuf bf = msg.getBody();
 
-        LOGGER.info("simpleserverhandler channelread"+convertByteBufToString(bf));
+        LOGGER.info("simpleserverhandler channelread"+BufferCovert.convertByteBufToString(bf));
         LOGGER.info("msgs"+JSONUtils.toJSONString(msg));
     }
 
-    public String convertByteBufToString(ByteBuf buf) {
-        String str;
-        if (buf.hasArray()) { // 处理堆缓冲区
-            str = new String(buf.array(), buf.arrayOffset() + buf.readerIndex(), buf.readableBytes());
-        } else { // 处理直接缓冲区以及复合缓冲区
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.getBytes(buf.readerIndex(), bytes);
-            str = new String(bytes, 0, buf.readableBytes());
-        }
-        return str;
-    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Datagram command) throws Exception {
         ByteBuf bf = command.getBody();
-        LOGGER.info("SimpleServerHandler.channelRead"+convertByteBufToString(bf));
-
-        RemotingHeader header1 = new RemotingHeader();
+        String message =  BufferCovert.convertByteBufToString(bf);
+        LOGGER.info("SimpleServerHandler.channelRead byte : "+message);
+        LOGGER.info("SimpleServerHandler.type byte : "+command.getHeader().getRequestCode());
+       /* RemotingHeader header1 = new RemotingHeader();
         header1.setMagicCode(header1.DEFAULT_MAGIC_CODE);
         ByteBuf buf = Unpooled.copiedBuffer("heartbeat", Charset.forName("UTF-8"));
         header1.setLength("heartbeat".length());
@@ -103,11 +100,17 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
         Datagram datagram1 = new Datagram();
         datagram1.setHeader(header1);
         datagram1.setBody(buf);
-        ctx.writeAndFlush(datagram1);
+        ctx.channel().writeAndFlush(datagram1);
         LOGGER.info("error"+ctx.channel());
 
-        command.setTime(System.currentTimeMillis());
+        command.setTime(System.currentTimeMillis());*/
+        if(command.getHeader().getRequestCode() == MessageTypeEnum.CONSUMER_DATA_INFO.getType()){
+            System.out.println("1111111111111");
+        }
+
+
         processMessageReceived(ctx, command);
+
 
 
 
@@ -117,6 +120,12 @@ public class ServerChannelHandlerAdapter  extends SimpleChannelInboundHandler<Da
     private void processMessageReceived(ChannelHandlerContext ctx, Datagram cmd) {
         if (cmd != null) {
             final RequestExecutor executor = commands.get(cmd.getHeader().getRequestCode());
+
+            log.info(JSON.toJSONString(commands));
+            log.info("===============>"+cmd.getHeader().getRequestCode());
+
+            log.info("executor"+executor);
+
             executor.execute(ctx,cmd);
         }
     }

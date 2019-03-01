@@ -21,11 +21,12 @@ public class BaseMessage  {
     private String subject;
     private static final long expiredDelay = 10 * 3600;
     private String groupName;
-
+    private String content;
     public BaseMessage(String messageId, String subject,String groupName) {
         this.messageId = messageId;
         this.subject = subject;
         this.groupName = groupName;
+        this.content = content;
     }
     public BaseMessage(){
 

@@ -3,6 +3,7 @@ package com.xmq.server;
 import com.xmq.netty.Datagram;
 import com.xmq.netty.RemotingHeader;
 import com.xmq.producer.client.NettyClient;
+import com.xmq.util.IpUtil;
 import com.xmq.util.MessageTypeEnum;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -39,13 +40,14 @@ public class BrokerRegister {
     }
 
     private void heartbeat() {
-        log.info("send message heatbeat ");
+        log.info("send broker heatbeat ");
         Datagram data = new Datagram();
         RemotingHeader header = new RemotingHeader();
         header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_BROKER.getType());
-        ByteBuf buf = Unpooled.copiedBuffer("heartbeat", Charset.forName("UTF-8"));
+        String ip = IpUtil.getServerIp();
+        ByteBuf buf = Unpooled.copiedBuffer(ip, Charset.forName("UTF-8"));
 
-        header.setLength("heartbeat".length());
+        header.setLength(ip.length());
         data.setHeader(header);
         data.setBody(buf);
         log.info("send message"+data);

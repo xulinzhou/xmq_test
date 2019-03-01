@@ -3,6 +3,7 @@ package com.xmq.producer.impl;
 import com.xmq.message.BaseMessage;
 import com.xmq.producer.MessageProducer;
 import com.xmq.producer.client.NettyClient;
+import com.xmq.producer.client.NettyClientZk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class MessageProducerProvider implements MessageProducer {
 
 
    public  void sendMessage(BaseMessage message){
-       NettyClient client = new NettyClient();
+       NettyClientZk client = new NettyClientZk();
        client.sendMessage(message);
     }
 }

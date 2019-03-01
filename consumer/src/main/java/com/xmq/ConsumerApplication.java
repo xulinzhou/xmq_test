@@ -1,6 +1,7 @@
 package com.xmq;
 
 import com.xmq.consumer.MessageConsumer;
+import com.xmq.consumer.MessageConsumerNew;
 import com.xmq.consumer.MessageListener;
 import com.xmq.message.BaseMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +35,11 @@ public class ConsumerApplication implements CommandLineRunner {
 
     }
     @Resource
-    private MessageConsumer messageConsumer;
+    private MessageConsumerNew messageConsumer;
     @Override
     public void run(String... args) throws Exception {
 
-        messageConsumer.addListener("test", "group1", new MessageListener() {
+        messageConsumer.addListener("test1", "group1", new MessageListener() {
             public void onMessage(BaseMessage msg) {
                 log.info("normal messageId is " + msg.getMessageId());
             }

@@ -1,6 +1,5 @@
-package com.xmq.producer.client;
+package com.xmq.consumer;
 
-import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.xmq.exception.ClientSendException;
@@ -17,7 +16,9 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ import java.nio.charset.Charset;
 
 @Component
 @Slf4j
-public class NettyClient {
+public class ConsumerClient {
     private String host;
     @Value("${netty.port}")
     private int port;
@@ -33,24 +34,33 @@ public class NettyClient {
     @Value("${zookeeper.ip}")
     private String zk;
     private BaseMessage message;
+
+    public  ConsumerClient(){};
     /**
      * 构造函数
      */
-    public NettyClient() {
-        clientHandler = new NettyClientHandler();
-        this.host = "127.0.0.1";
+    public ConsumerClient(String ip) {
+        clientHandler = new ConsumerClientHandler();
+        if(StringUtils.isEmpty(ip)){
+            this.host = "127.0.0.1";
+        }else{
+            this.host = ip;
+        }
     }
     private io.netty.bootstrap.Bootstrap bootstrap;
 
     private ChannelFuture f;
 
 
-    private NettyClientHandler clientHandler;
+    private ConsumerClientHandler clientHandler;
 
     /**
      * 连接方法
      */
-    public void connect() {
+    public void connect(int port) {
+        if(port !=0 ){
+            this.port = port;
+        }
         log.info("port:"+port);
         EventLoopGroup group = new NioEventLoopGroup();
         try {
@@ -64,97 +74,23 @@ public class NettyClient {
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast("encoder", new EncodeHandler());
                     ch.pipeline().addLast("decoder", new DecodeHandler());
+                    ch.pipeline().addLast("http-aggregator", new HttpObjectAggregator(65536));//這裡的位置有問題
                     ch.pipeline().addLast(clientHandler);
                 }
             });
-
-            f = bootstrap.connect("127.0.0.1", 7777);
+            log.info("=======>host:"+host+"============>port:"+port);
+            f = bootstrap.connect(host, port);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    /**
-     *心跳
-     */
-    public void heatBeat() {
-        connect();
-        Datagram datagram  = new Datagram();
-        String dataStr = JSON.toJSONString(message);
-        ByteBuf buf = Unpooled.copiedBuffer(dataStr, Charset.forName("UTF-8"));
-        datagram.setBody(buf);
-        RemotingHeader header = new RemotingHeader();
-        header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_BROKER.getType());
-        header.setLength(0);
-        header.setMagicCode(RemotingHeader.DEFAULT_MAGIC_CODE);
-        datagram.setHeader(header);
 
-    }
-
-    public void sendMessage(BaseMessage message){
-        this.message = message;
-
-        Datagram datagram  = new Datagram();
-        String dataStr = JSON.toJSONString(message);
-        ByteBuf buf = Unpooled.copiedBuffer(dataStr, Charset.forName("UTF-8"));
-        datagram.setBody(buf);
-        RemotingHeader header = new RemotingHeader();
-        header.setRequestCode(MessageTypeEnum.SYN_DATA.getType());
-        header.setLength(dataStr.length());
-        header.setMagicCode(RemotingHeader.DEFAULT_MAGIC_CODE);
-        datagram.setHeader(header);
-        System.out.println("========="+JSON.toJSONString(datagram));
-        try {
-            final ResultFuture future = new ResultFuture();
-            f.channel().writeAndFlush(datagram);
-            /*final  com.xmq.producer.client.ResponseFuture responseFuture
-                    =  clientHandler.process(future,f.channel(),1000);
-            log.info("send message  chanel================"+f);
-            f.channel().writeAndFlush(datagram).addListener((new ChannelFutureListener() {
-                public void operationComplete(ChannelFuture future) {
-                    if (future.isSuccess()) {
-                        responseFuture.setOk(true);
-                        log.info("send message  success");
-                        return;
-                    }else{
-                        log.error("send  failed.", future.cause());
-                    }
-                }
-            }));;*/
-        }catch (Exception e){
-            log.info(e.getMessage());
-            e.printStackTrace();
-        }
-
+    public  void close(){
 
     }
 
 
-   /* public  void synMessage(String address,Datagram datagram){
-        try {
-            port = 7777;
-            LOGGER.info("port:"+port);
-
-            ChannelFuture f = bootstrap.connect(address, port).sync();
-            *//*f.channel().writeAndFlush(datagram).addListener((new ChannelFutureListener() {
-                public void operationComplete(ChannelFuture future) {
-                    if (future.isSuccess()) {
-                        System.out.println("send message  success");
-                        return;
-                    }else{
-                        LOGGER.error("send  failed.", future.cause());
-                    }
-                }
-            }));
-            f.channel().closeFuture().sync();*//*
-            f.channel().writeAndFlush(null);
-            //f.channel().closeFuture().sync();
-        }catch (Exception e){
-            e.printStackTrace();
-
-            LOGGER.error("eeeeeeeeeeeeeeeee");
-        }
-    }*/
     /**
      * 发送消息
      * @param address

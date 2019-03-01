@@ -1,10 +1,11 @@
-package com.xmq.producer.client;
+package com.xmq.consumer;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xmq.exception.ClientSendException;
-import com.xmq.exception.TimeOutException;
 import com.xmq.message.BaseMessage;
 import com.xmq.netty.Datagram;
+import com.xmq.producer.client.ResponseFuture;
 import com.xmq.util.BufferCovert;
 import com.xmq.util.MyThreadFactory;
 import io.netty.channel.Channel;
@@ -25,7 +26,7 @@ import java.util.concurrent.*;
  */
 @Slf4j
 @ChannelHandler.Sharable
-public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
+public class ConsumerClientHandler extends SimpleChannelInboundHandler<Datagram> {
 
 
     private ConcurrentMap<Channel,ResponseFuture> channelMap = new ConcurrentHashMap(10);
@@ -33,14 +34,14 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
 
     private BaseMessage message;
     private ScheduledExecutorService timer ;
-    public   NettyClientHandler(){
+    public ConsumerClientHandler(){
         timer  =  Executors.newSingleThreadScheduledExecutor(new MyThreadFactory("client-timer"));
         timer.scheduleAtFixedRate(()->time(),
         3000,
         1000,
         TimeUnit.MILLISECONDS);
     }
-    public   NettyClientHandler(BaseMessage message){
+    public ConsumerClientHandler(BaseMessage message){
         this.message =message;
     }
 
@@ -48,12 +49,22 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
     protected void channelRead0(ChannelHandlerContext ctx, Datagram datagram) throws Exception {
         log.info("====>receive message "+JSON.toJSONString(datagram));
 
-        log.info("====>message"+ BufferCovert.convertByteBufToString(datagram.getBody()));
+        String str = BufferCovert.convertByteBufToString(datagram.getBody());
+        log.info("====>message"+ str);
 
-        ResponseFuture future =  channelMap.get(ctx.channel());
-        log.info("====>future========="+future);
-        if(null==future) return ;
-        future.executeCallBack();
+        if(!str.equalsIgnoreCase("heartbeat")){
+            JSONObject obj = JSONObject.parseObject(str);
+            ProcessHandler processHandler = new ConsumerHandlerNew();
+            processHandler.getBroker(obj.get("content").toString());
+            ctx.close();
+            ctx.channel();
+        }
+
+
+        //ResponseFuture future =  channelMap.get(ctx.channel());
+        //log.info("====>future========="+future);
+        //if(null==future) return ;
+        //future.executeCallBack();
         //
     }
     @Override
@@ -76,31 +87,7 @@ public class NettyClientHandler  extends SimpleChannelInboundHandler<Datagram> {
     }
     // 连接成功后，向server发送消息
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("active1111111111");
-        /*for (int i = 0; i < 100; i++) {
-            message.setMessageId(String.valueOf(i));
-            LOGGER.info("====>send message "+JSON.toJSONString(message));
-
-            Datagram datagram = new Datagram();
-            final RemotingHeader header = new RemotingHeader();
-            header.setMagicCode(RemotingHeader.DEFAULT_MAGIC_CODE);
-            header.setRequestCode(MessageTypeEnum.SYN_MESSAGE_CLIENT.getType());
-            String messageStr = JSON.toJSONString(message);
-            header.setLength(messageStr.length());
-            ByteBuf buf = Unpooled.copiedBuffer(messageStr, Charset.forName("UTF-8"));//创建一个ByteBuf
-            datagram.setBody(buf);
-            datagram.setHeader(header);
-            ctx.writeAndFlush(datagram).addListener((new ChannelFutureListener() {
-                public void operationComplete(ChannelFuture future) {
-                    if (future.isSuccess()) {
-                        System.out.println("send success");
-                        return;
-                    }else{
-                        LOGGER.error("send request to broker failed.", future.cause());
-                    }
-                }
-            }));
-        }*/
+        log.info("channelActivechannelActivechannelActivechannelActive");
     }
 
 

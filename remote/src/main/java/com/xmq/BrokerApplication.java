@@ -4,6 +4,7 @@ import com.xmq.config.Config;
 import com.xmq.dispatch.DispatchThread;
 import com.xmq.handler.*;
 import com.xmq.netty.server.NettyServer;
+import com.xmq.netty.server.NettyServerZk;
 import com.xmq.store.db.IDbStore;
 import com.xmq.store.db.impl.DbStore;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +32,14 @@ public class BrokerApplication implements CommandLineRunner {
 
     @Resource
     Config config;
+    @Resource
+    private NettyServerZk nettyServerZk;
 
     public static void main(String[] args) {
         SpringApplication.run(BrokerApplication.class, args);
     }
 
-    @Override
+    /*@Override
     public void run(String... args) {
         start();
     }
@@ -50,6 +53,22 @@ public class BrokerApplication implements CommandLineRunner {
         }
 
     }
+*/
 
+    @Override
+    public void run(String... args) {
+        start();
+    }
+    public void start(){
+        IDbStore store  =    new DbStore(config);
+        QueueHandler queue = new QueueHandler();
+        DbHandler dbHandler = new DbHandler(store);
+        FileHandler fileHandler = new FileHandler(config);
+        queue.setNextHandler(dbHandler);
+        dbHandler.setNextHandler(fileHandler);
+        //多线程处理队列数据
+        new DispatchThread(queue).start();
 
+        nettyServerZk.start(queue);
+    }
 }

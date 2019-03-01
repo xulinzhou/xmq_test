@@ -23,7 +23,7 @@ import java.util.Date;
 
 
 public class Datagram {
-    RemotingHeader header;
+    private RemotingHeader header;
     private ByteBuf body;
     private long time;
     public ByteBuf getBody() {

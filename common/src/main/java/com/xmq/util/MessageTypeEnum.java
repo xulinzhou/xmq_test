@@ -15,7 +15,9 @@ public enum MessageTypeEnum {
     SYN_MESSAGE_CLIENT(11, "CLIENT同步消息"),
     BROKER_ONLINE(12, "Broker上线注册"),
     WAIT_CANCELED_5(105, "等待取消"),
-
+    SYN_DATA(50, "同步数据"),
+    CONSUMER_DATA(1000, "消费端消费数据获取borker"),
+    CONSUMER_DATA_INFO(200, "消费端消费数据"),
     SYN_ERROR(400, "同步消息异常");
 
 

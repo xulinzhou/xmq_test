@@ -2,6 +2,7 @@ package com.xmq.startup;
 
 import com.xmq.netty.server.NettyServer;
 import com.xmq.processor.BrokerRegisterProcessor;
+import com.xmq.util.MessageTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,11 @@ public class MetaServer {
 
           BrokerRegisterProcessor process = new BrokerRegisterProcessor();
           final NettyServer metaNettyServer = new NettyServer("meta",7777);
-          metaNettyServer.registerProcessor(10,process,null);
+          metaNettyServer.registerProcessor(MessageTypeEnum.SYN_MESSAGE_BROKER.getType(),process,null);
           metaNettyServer.registerProcessor(1,null,null);
-
+          metaNettyServer.registerProcessor(MessageTypeEnum.SYN_DATA.getType(),process,null);
+          metaNettyServer.registerProcessor(MessageTypeEnum.CONSUMER_DATA.getType(),process,null);
+          metaNettyServer.registerProcessor(MessageTypeEnum.CONSUMER_DATA_INFO.getType(),process,null);
           metaNettyServer.start();
           try {
               System.in.read();
