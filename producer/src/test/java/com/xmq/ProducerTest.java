@@ -28,24 +28,24 @@ public class ProducerTest {
 
 
     public static void main(String[] args) {
-       /* ProducerRegisterStartup pro =  new ProducerRegisterStartup();
+        ProducerRegisterStartup pro =  new ProducerRegisterStartup();
         pro.registerProducer();
-        pro.sendMessage();*/
+        pro.sendMessage();
 
 
 
-        Options opt = new OptionsBuilder()
+       /* Options opt = new OptionsBuilder()
                 .include(ProducerTest.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(3)
                 .measurementIterations(5)
-                .build();
+                .build();*/
 
-        try {
+        /*try {
             new Runner(opt).run();
         } catch (RunnerException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void registerProducer(){
@@ -54,7 +54,7 @@ public class ProducerTest {
         register.start();*/
     }
     NettyClient client = null;
-    @Benchmark
+    //@Benchmark
     public void sendMessage(){
         MessageProducer messageProducer = new MessageProducerProvider();
         BaseMessage message =new BaseMessage("11","test","group1");

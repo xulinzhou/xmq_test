@@ -128,7 +128,7 @@ public class DbStoreNew implements IDbStoreNew {
     @Override
     public List<BaseMessage> getMessages(String topic,String groupNmame) {
         try{
-            return jdbcTemplate.query(GET_MESSAGE_LIST_SQL,SUBJECT_MESSAGE_ROW_MAPPER,new  Object[] {topic,groupNmame});
+            return jdbcTemplate.query(GET_MESSAGE_LIST_SQL,SUBJECT_MESSAGE_ROW_MAPPER,new  Object[] {topic});
 
         }catch (Exception e){
             e.printStackTrace();
@@ -140,7 +140,7 @@ public class DbStoreNew implements IDbStoreNew {
     @Override
     public void deleteMessage(String topic ,String groupName) {
         try{
-             jdbcTemplate.update(DELETE_MESSAGE_LIST_SQL, new  Object[] {topic,groupName});
+             jdbcTemplate.update(DELETE_MESSAGE_LIST_SQL, new  Object[] {topic});
 
         }catch (Exception e){
             e.printStackTrace();

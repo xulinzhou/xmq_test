@@ -93,7 +93,8 @@ public class NettyClient {
 
     public void sendMessage(BaseMessage message){
         this.message = message;
-
+        for(int i = 0;i<1000;i++){
+            System.out.println("=============="+i);
         Datagram datagram  = new Datagram();
         String dataStr = JSON.toJSONString(message);
         ByteBuf buf = Unpooled.copiedBuffer(dataStr, Charset.forName("UTF-8"));
@@ -105,8 +106,10 @@ public class NettyClient {
         datagram.setHeader(header);
         System.out.println("========="+JSON.toJSONString(datagram));
         try {
-            final ResultFuture future = new ResultFuture();
-            f.channel().writeAndFlush(datagram);
+           // final ResultFuture future = new ResultFuture();
+
+                f.channel().writeAndFlush(datagram);
+
             /*final  com.xmq.producer.client.ResponseFuture responseFuture
                     =  clientHandler.process(future,f.channel(),1000);
             log.info("send message  chanel================"+f);
@@ -126,7 +129,7 @@ public class NettyClient {
             e.printStackTrace();
         }
 
-
+        }
     }
 
 

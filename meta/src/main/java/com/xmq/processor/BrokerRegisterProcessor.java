@@ -183,9 +183,9 @@ public class BrokerRegisterProcessor implements RequestProcessor {
         JSONObject obj = JSONObject.parseObject(str);
         log.info("receive consumer message "+ JSON.toJSONString(obj));
         String topic= obj.get("subject").toString();
-        String groupName= obj.get("groupName").toString();
+        //String groupName= obj.get("groupName").toString();
         //获取message 列表
-        List<BaseMessage> messageList = storeNew.getMessages(topic,groupName);
+        List<BaseMessage> messageList = storeNew.getMessages(topic,"group1");
 
         Datagram datagram  = new Datagram();
         BaseMessage message = new BaseMessage();
@@ -203,7 +203,7 @@ public class BrokerRegisterProcessor implements RequestProcessor {
             public void operationComplete(ChannelFuture future) {
                 if (future.isSuccess()) {
                     log.info("syn consumer data   success");
-                    storeNew.deleteMessage(topic,groupName);
+                    //storeNew.deleteMessage(topic,"group1");
                     return;
                 }else{
                     log.error("send consumer failed.", future.cause());

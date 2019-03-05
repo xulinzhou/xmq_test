@@ -43,12 +43,12 @@ public class ProducerRegisterStartup {
     public void sendMessage(){
         MessageProducer messageProducer = new MessageProducerProvider();
         BaseMessage message =new BaseMessage("11","test","group1");
-        if(client!=null){
-            client = new NettyClient();
+        //if(client ==null){
+        NettyClient  client = new NettyClient();
             client.heatBeat();
             client.sendMessage(message);
-        }else {
+        /*}else {
             client.sendMessage(message);
-        }
+        }*/
     }
 }

@@ -10,6 +10,7 @@ public class EncodeHandler extends MessageToByteEncoder<Datagram> {
     protected void encode(ChannelHandlerContext ctx, Datagram msg, ByteBuf out) throws Exception {
 
         int start = out.writerIndex();
+        System.out.println("===========================+start"+out.readableBytes());
         out.writerIndex(start);
         final RemotingHeader header = msg.getHeader();
         out.writeInt(header.getMagicCode());
